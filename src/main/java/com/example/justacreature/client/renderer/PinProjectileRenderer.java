@@ -39,12 +39,9 @@ public class PinProjectileRenderer extends EntityRenderer<PinProjectile> {
                 VertexConsumer vertexconsumer = buffer
                                 .getBuffer(this.model.renderType(this.getTextureLocation(entity)));
 
-                float spinAngle = (entity.tickCount + partialTicks) * 40.0F;
-                poseStack.translate(0.0F, 0.05F, 0.0F);
+                float spinAngle = (entity.tickCount + partialTicks) * -40.0F;
 
                 poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(spinAngle));
-
-                poseStack.translate(0.0F, -0.05F, 0.0F);
 
                 this.model.renderToBuffer(poseStack, vertexconsumer, packedLight,
                                 net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, -1);

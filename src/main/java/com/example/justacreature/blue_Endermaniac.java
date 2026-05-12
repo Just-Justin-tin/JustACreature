@@ -86,9 +86,13 @@ public class blue_Endermaniac extends Monster {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new WaterAvoidingRandomFlyingGoal(this, 1.0D)); // Wander around in the air!
-        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(2, new SummonBalloonGoal(this));
+        this.goalSelector.addGoal(3, new WaterAvoidingRandomFlyingGoal(this, 1.0D)); // Wander around in the air!
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this));
+
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
     // 5. Turn off fall damage (so it doesn't die if it lands)
