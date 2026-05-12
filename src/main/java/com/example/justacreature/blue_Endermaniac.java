@@ -32,8 +32,10 @@ public class blue_Endermaniac extends Monster {
 
     public blue_Endermaniac(EntityType<? extends Monster> type, Level level) {
         super(type, level);
-        // 2. Give the mob 3D flight controls!
+        // Give the mob 3D flight controls!
         this.moveControl = new FlyingMoveControl(this, 10, false);
+
+        this.setNoGravity(true);
     }
 
     protected boolean teleport() {
@@ -164,6 +166,27 @@ public class blue_Endermaniac extends Monster {
         }
 
         return wasHurt;
+    }
+
+    @Override
+    public void travel(Vec3 travelVector) {
+        if (this.isEffectiveAi() || this.isControlledByLocalInstance()) {
+            if (this.isInWater()) {
+                this.moveRelative(0.02F, travelVector);
+                this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.8D));
+            } else if (this.isInLava()) {
+                this.moveRelative(0.02F, travelVector);
+                this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.5D));
+            } else {
+                // This gives the mob "air friction" so it glides smoothly
+                this.moveRelative(0.02F, travelVector);
+                this.move(net.minecraft.world.entity.MoverType.SELF, this.getDeltaMovement());
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.91D));
+            }
+        }
+        this.calculateEntityAnimation(blocksBuilding);
     }
 
 }

@@ -22,13 +22,16 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.core.Holder;
 
 public class BalloonBee extends Bee {
     // This now stores an ARGB color code (like 0xFFFF0000 for pure red)
     private static final EntityDataAccessor<Integer> BALLOON_COLOR = SynchedEntityData.defineId(BalloonBee.class,
             EntityDataSerializers.INT);
 
-    private static final MobEffect[] POSSIBLE_EFFECTS = new MobEffect[] {
+    private static final Holder<MobEffect>[] RANDOM_EFFECTS = new Holder[] {
             MobEffects.CONFUSION,
             MobEffects.BLINDNESS,
             MobEffects.WEAKNESS,
@@ -110,7 +113,7 @@ public class BalloonBee extends Bee {
 
         if (hitSuccessfully && target instanceof LivingEntity livingTarget) {
             livingTarget.addEffect(
-                    new MobEffectInstance(POSSIBLE_EFFECTS[random.nextInt(POSSIBLE_EFFECTS.length)], 100, 0), this);
+                    new MobEffectInstance(RANDOM_EFFECTS[random.nextInt(RANDOM_EFFECTS.length)], 100, 0), this);
         }
 
         return hitSuccessfully;

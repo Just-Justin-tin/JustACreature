@@ -40,7 +40,7 @@ public class JustaCreatureMobs {
         public static final DeferredHolder<EntityType<?>, EntityType<red_Endermaniac>> RED_ENDERMANIAC = ENTITY_TYPES
                         .register("red_endermaniac",
                                         () -> EntityType.Builder.of(red_Endermaniac::new, MobCategory.MONSTER)
-                                                        .sized(1.0F, 1.0F)
+                                                        .sized(0.5F, 2.5F)
                                                         .clientTrackingRange(10)
                                                         .fireImmune()
                                                         .build("red_endermaniac"));
@@ -48,7 +48,7 @@ public class JustaCreatureMobs {
         public static final DeferredHolder<EntityType<?>, EntityType<pink_Endermaniac>> PINK_ENDERMANIAC = ENTITY_TYPES
                         .register("pink_endermaniac",
                                         () -> EntityType.Builder.of(pink_Endermaniac::new, MobCategory.MONSTER)
-                                                        .sized(1.0F, 1.0F)
+                                                        .sized(0.5F, 1.5F)
                                                         .clientTrackingRange(10)
                                                         .fireImmune()
                                                         .build("pink_endermaniac"));
@@ -56,7 +56,7 @@ public class JustaCreatureMobs {
         public static final DeferredHolder<EntityType<?>, EntityType<blue_Endermaniac>> BLUE_ENDERMANIAC = ENTITY_TYPES
                         .register("blue_endermaniac",
                                         () -> EntityType.Builder.of(blue_Endermaniac::new, MobCategory.MONSTER)
-                                                        .sized(1.0F, 1.0F)
+                                                        .sized(0.5F, 2.0F)
                                                         .clientTrackingRange(10)
                                                         .fireImmune()
                                                         .build("blue_endermaniac"));
@@ -95,7 +95,7 @@ public class JustaCreatureMobs {
                                                         .<PinProjectile>of(
                                                                         (type, level) -> new PinProjectile(type, level),
                                                                         MobCategory.MISC)
-                                                        .sized(0.25F, 0.25F)
+                                                        .sized(0.4F, 0.4F)
                                                         .clientTrackingRange(4)
                                                         .updateInterval(10)
                                                         .build("pin_projectile")); // <--- Add the string ID here!

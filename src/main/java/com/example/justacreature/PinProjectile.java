@@ -39,7 +39,7 @@ public class PinProjectile extends ThrowableProjectile {
     protected void onHitEntity(EntityHitResult result) {
         super.onHitEntity(result);
         // 3. Deal damage to whatever it hits! (5.0F = 2.5 hearts)
-        result.getEntity().hurt(this.damageSources().thrown(this, this.getOwner()), 5.0F);
+        result.getEntity().hurt(this.damageSources().thrown(this, this.getOwner()), 10.0F);
     }
 
     @Override

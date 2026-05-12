@@ -186,9 +186,6 @@ public class JustaCreature {
                                         .icon(() -> BOSAMBO_EGG_BLOCK_ITEM.get().getDefaultInstance())
                                         .displayItems((parameters, output) -> {
                                                 output.accept(JustaCreatureMobs.BOSAMBO_SPAWN_EGG.get());
-                                                output.accept(JustaCreatureMobs.RED_ENDERMANIAC_SPAWN_EGG.get());
-                                                output.accept(JustaCreatureMobs.PINK_ENDERMANIAC_SPAWN_EGG.get());
-                                                output.accept(JustaCreatureMobs.BLUE_ENDERMANIAC_SPAWN_EGG.get());
                                                 output.accept(BOSAMBO_EGG_BLOCK_ITEM.get());
                                                 output.accept(CRYSTALLINE_MELON_SLICE.get());
                                                 output.accept(SHINY_SEEDS.get());

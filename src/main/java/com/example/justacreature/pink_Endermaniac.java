@@ -140,9 +140,11 @@ public class pink_Endermaniac extends Monster {
         // 2. Take normal damage from swords/melee
         boolean wasHurt = super.hurt(source, amount);
 
-        // 3. Have a 25% chance to teleport away after getting hit by a sword
-        if (wasHurt && !this.level().isClientSide() && this.random.nextInt(4) == 0) {
-            this.teleport();
+        // 3. Have a 50% chance to teleport away after getting hit by a sword
+        if (wasHurt && !this.level().isClientSide() && this.random.nextInt(2) == 0) {
+            for (int i = 0; i < this.random.nextInt(5); i++) {
+                this.teleport();
+            }
         }
 
         return wasHurt;
