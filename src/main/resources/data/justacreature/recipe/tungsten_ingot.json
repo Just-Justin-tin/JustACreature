@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:blasting",
+    "category": "misc",
+    "ingredient": {
+        "item": [
+            "justacreature:raw_tungsten",
+            "justacreature:deepslate_tungsten_ore"
+        ]
+    },
+    "result": {
+        "id": "justacreature:tungsten_ingot"
+    },
+    "experience": 5.0,
+    "cookingtime": 450
+}

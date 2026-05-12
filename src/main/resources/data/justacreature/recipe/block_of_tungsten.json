@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "justacreature:tungsten_ingot"
+    }
+  },
+  "result": {
+    "id": "justacreature:block_of_tungsten"
+  }
+}

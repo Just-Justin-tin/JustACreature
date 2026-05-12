@@ -1,0 +1,40 @@
+{
+    "type": "minecraft:gift",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:deepslate_iron_ore",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:deepslate_gold_ore",
+                    "weight": 2
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:deepslate_emerald_ore",
+                    "weight": 3
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:deepslate_diamond_ore",
+                    "weight": 4
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:deepslate_redstone_ore",
+                    "weight": 5
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:deepslate_copper_ore",
+                    "weight": 6
+                }
+            ]
+        }
+    ]
+}

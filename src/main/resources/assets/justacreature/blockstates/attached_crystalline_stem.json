@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "justacreature:block/attached_crystalline_stem",
+            "y": 90
+        },
+        "facing=east": {
+            "model": "justacreature:block/attached_crystalline_stem",
+            "y": 180
+        },
+        "facing=south": {
+            "model": "justacreature:block/attached_crystalline_stem",
+            "y": 270
+        },
+        "facing=west": {
+            "model": "justacreature:block/attached_crystalline_stem"
+        }
+    }
+}

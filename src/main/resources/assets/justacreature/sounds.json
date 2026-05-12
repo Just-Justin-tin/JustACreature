@@ -1,0 +1,51 @@
+{
+    "bosambo_dig_stop": {
+        "category": "neutral",
+        "sounds": [
+            "justacreature:bosambo_short_roar1",
+            "justacreature:bosambo_short_roar2",
+            "justacreature:bosambo_short_roar3",
+            "justacreature:bosambo_short_roar4"
+        ]
+    },
+    "bosambo_ambient": {
+        "category": "neutral",
+        "sounds": [
+            "justacreature:bosambo_gurgle_growl1",
+            "justacreature:bosambo_gurgle_growl2",
+            "justacreature:bosambo_gurgle_growl3",
+            "justacreature:bosambo_gurgle_growl4",
+            "justacreature:bosambo_gurgle_growl5",
+            "justacreature:bosambo_gurgle_growl6"
+        ]
+    },
+    "bosambo_hurt": {
+        "category": "neutral",
+        "sounds": [
+            "justacreature:bosambo_short_roar5",
+            "justacreature:bosambo_short_roar6",
+            "justacreature:bosambo_short_roar7",
+            "justacreature:bosambo_short_roar8",
+            "justacreature:bosambo_short_roar9"
+        ]
+    },
+    "bosambo_death": {
+        "category": "neutral",
+        "sounds": [
+            "justacreature:bosambo_long_roar1",
+            "justacreature:bosambo_long_roar2",
+            "justacreature:bosambo_long_roar3"
+        ]
+    },
+    "bosambo_step": {
+        "category": "neutral",
+        "sounds": [
+            "justacreature:bosambo_footstep1",
+            "justacreature:bosambo_footstep2",
+            "justacreature:bosambo_footstep3",
+            "justacreature:bosambo_footstep4",
+            "justacreature:bosambo_footstep5",
+            "justacreature:bosambo_footstep6"
+        ]
+    }
+}

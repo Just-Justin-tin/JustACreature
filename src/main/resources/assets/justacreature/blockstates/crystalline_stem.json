@@ -1,0 +1,28 @@
+{
+    "variants": {
+        "age=0": {
+            "model": "justacreature:block/crystalline_stem0"
+        },
+        "age=1": {
+            "model": "justacreature:block/crystalline_stem1"
+        },
+        "age=2": {
+            "model": "justacreature:block/crystalline_stem2"
+        },
+        "age=3": {
+            "model": "justacreature:block/crystalline_stem3"
+        },
+        "age=4": {
+            "model": "justacreature:block/crystalline_stem4"
+        },
+        "age=5": {
+            "model": "justacreature:block/crystalline_stem5"
+        },
+        "age=6": {
+            "model": "justacreature:block/crystalline_stem6"
+        },
+        "age=7": {
+            "model": "justacreature:block/crystalline_stem7"
+        }
+    }
+}

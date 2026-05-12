@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "justacreature:block_of_raw_tungsten"
+    }
+  ],
+  "result": {
+    "id": "justacreature:raw_tungsten",
+    "count": 9
+  }
+}

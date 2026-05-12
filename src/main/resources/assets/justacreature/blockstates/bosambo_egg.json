@@ -1,0 +1,22 @@
+{
+    "variants": {
+        "hatch=0,lavalogged=false": {
+            "model": "justacreature:block/bosambo_egg_model0"
+        },
+        "hatch=0,lavalogged=true": {
+            "model": "justacreature:block/bosambo_egg_model0"
+        },
+        "hatch=1,lavalogged=false": {
+            "model": "justacreature:block/bosambo_egg_model1"
+        },
+        "hatch=1,lavalogged=true": {
+            "model": "justacreature:block/bosambo_egg_model1"
+        },
+        "hatch=2,lavalogged=false": {
+            "model": "justacreature:block/bosambo_egg_model2"
+        },
+        "hatch=2,lavalogged=true": {
+            "model": "justacreature:block/bosambo_egg_model2"
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "justacreature:item/crystalline_melon_slice"
+    }
+}

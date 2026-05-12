@@ -1,0 +1,17 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "category": "building",
+    "pattern": [
+        "###",
+        "###",
+        "###"
+    ],
+    "key": {
+        "#": {
+            "item": "justacreature:raw_tungsten"
+        }
+    },
+    "result": {
+        "id": "justacreature:block_of_raw_tungsten"
+    }
+}

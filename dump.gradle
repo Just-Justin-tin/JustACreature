@@ -1,0 +1,1 @@
+tasks.register('dumpMinecraftJar') { doLast { configurations.compileClasspath.each { if(it.name.contains('minecraft')) println it } } }
