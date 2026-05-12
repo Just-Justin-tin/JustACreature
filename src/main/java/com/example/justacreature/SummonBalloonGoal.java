@@ -20,8 +20,9 @@ public class SummonBalloonGoal extends Goal {
 
     // 1. The list of random mobs to summon. You can add any entity type here!
     private final List<EntityType<? extends LivingEntity>> balloonTypes = List.of(
-            EntityType.ZOMBIE, EntityType.CREEPER, EntityType.WOLF, EntityType.BEE, EntityType.GHAST);
-            
+            JustaCreatureMobs.BALLOON_BEE.get(), JustaCreatureMobs.BALLOON_WOLF.get(),
+            JustaCreatureMobs.BALLOON_GHAST.get(), JustaCreatureMobs.BALLOON_CREEPER.get());
+
     public SummonBalloonGoal(blue_Endermaniac endermaniac) {
         this.endermaniac = endermaniac;
         // This tells the AI to stop walking while it summons

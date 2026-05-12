@@ -3,8 +3,12 @@ package com.example.justacreature;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.animal.Bee;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.sniffer.Sniffer;
+import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -56,6 +60,34 @@ public class JustaCreatureMobs {
                                                         .clientTrackingRange(10)
                                                         .fireImmune()
                                                         .build("blue_endermaniac"));
+
+        public static final DeferredHolder<EntityType<?>, EntityType<BalloonCreeper>> BALLOON_CREEPER = ENTITY_TYPES
+                        .register("balloon_creeper",
+                                        () -> EntityType.Builder.of(BalloonCreeper::new, MobCategory.MONSTER)
+                                                        .sized(1.0F, 1.0F)
+                                                        .clientTrackingRange(10)
+                                                        .build("balloon_creeper"));
+
+        public static final DeferredHolder<EntityType<?>, EntityType<BalloonGhast>> BALLOON_GHAST = ENTITY_TYPES
+                        .register("balloon_ghast",
+                                        () -> EntityType.Builder.of(BalloonGhast::new, MobCategory.MONSTER)
+                                                        .sized(4.0F, 4.0F)
+                                                        .clientTrackingRange(10)
+                                                        .build("balloon_ghast"));
+
+        public static final DeferredHolder<EntityType<?>, EntityType<BalloonWolf>> BALLOON_WOLF = ENTITY_TYPES
+                        .register("balloon_wolf",
+                                        () -> EntityType.Builder.of(BalloonWolf::new, MobCategory.MONSTER)
+                                                        .sized(0.7F, 0.6F)
+                                                        .clientTrackingRange(10)
+                                                        .build("balloon_wolf"));
+
+        public static final DeferredHolder<EntityType<?>, EntityType<BalloonBee>> BALLOON_BEE = ENTITY_TYPES
+                        .register("balloon_bee",
+                                        () -> EntityType.Builder.of(BalloonBee::new, MobCategory.MONSTER)
+                                                        .sized(0.5F, 0.5F)
+                                                        .clientTrackingRange(10)
+                                                        .build("balloon_bee"));
 
         public static final DeferredHolder<EntityType<?>, EntityType<PinProjectile>> PIN_PROJECTILE = ENTITY_TYPES
                         .register("pin_projectile",
@@ -110,8 +142,31 @@ public class JustaCreatureMobs {
                 event.put(BLUE_ENDERMANIAC.get(), Monster.createMonsterAttributes()
                                 .add(Attributes.MAX_HEALTH, 40.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                                .add(Attributes.FLYING_SPEED, 0.40D)
+                                .add(Attributes.FLYING_SPEED, 1.0D)
                                 .add(Attributes.FOLLOW_RANGE, 32.0D)
+                                .add(Attributes.GRAVITY, 0.05D)
+                                .build());
+
+                event.put(BALLOON_WOLF.get(), Wolf.createAttributes()
+                                .add(Attributes.MAX_HEALTH, 1.0D) // Pops instantly!
+                                .add(Attributes.MOVEMENT_SPEED, 0.3D)
+                                .add(Attributes.ATTACK_DAMAGE, 4.0D)
+                                .build());
+
+                event.put(BALLOON_CREEPER.get(), Creeper.createAttributes()
+                                .add(Attributes.MAX_HEALTH, 1.0D)
+                                .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                                .build());
+
+                event.put(BALLOON_GHAST.get(), Ghast.createAttributes()
+                                .add(Attributes.MAX_HEALTH, 1.0D)
+                                .build());
+
+                event.put(BALLOON_BEE.get(), Bee.createAttributes()
+                                .add(Attributes.MAX_HEALTH, 1.0D)
+                                .add(Attributes.FLYING_SPEED, 1.0D)
+                                .add(Attributes.MOVEMENT_SPEED, 0.3D)
+                                .add(Attributes.ATTACK_DAMAGE, 2.0D)
                                 .build());
         }
 
@@ -133,6 +188,18 @@ public class JustaCreatureMobs {
 
                         event.registerEntityRenderer(PIN_PROJECTILE.get(),
                                         com.example.justacreature.client.renderer.PinProjectileRenderer::new);
+
+                        event.registerEntityRenderer(BALLOON_WOLF.get(),
+                                        com.example.justacreature.client.renderer.BalloonWolfRenderer::new);
+
+                        event.registerEntityRenderer(BALLOON_GHAST.get(),
+                                        com.example.justacreature.client.renderer.BalloonGhastRenderer::new);
+
+                        event.registerEntityRenderer(BALLOON_CREEPER.get(),
+                                        com.example.justacreature.client.renderer.BalloonCreeperRenderer::new);
+
+                        event.registerEntityRenderer(BALLOON_BEE.get(),
+                                        com.example.justacreature.client.renderer.BalloonBeeRenderer::new);
                 }
 
                 @SubscribeEvent
@@ -152,6 +219,7 @@ public class JustaCreatureMobs {
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.blue_EndermaniacModel.LAYER_LOCATION,
                                         com.example.justacreature.client.model.blue_EndermaniacModel::createBodyLayer);
+
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.PinProjectileModel.LAYER_LOCATION,
                                         com.example.justacreature.client.model.PinProjectileModel::createBodyLayer);
