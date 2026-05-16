@@ -98,22 +98,19 @@ public class JustaCreatureMobs {
                                                         .sized(0.4F, 0.4F)
                                                         .clientTrackingRange(4)
                                                         .updateInterval(10)
-                                                        .build("pin_projectile")); // <--- Add the string ID here!
+                                                        .build("pin_projectile"));
+
+        public static final DeferredHolder<EntityType<?>, EntityType<Balloon>> BALLOON = ENTITY_TYPES
+                        .register("balloon",
+                                        () -> EntityType.Builder.<Balloon>of((type, level) -> new Balloon(type, level),
+                                                        MobCategory.MISC)
+                                                        .sized(1.0F, 1.0F)
+                                                        .clientTrackingRange(10)
+                                                        .updateInterval(10)
+                                                        .build("balloon"));
 
         public static final DeferredHolder<Item, Item> BOSAMBO_SPAWN_EGG = ITEMS.register("creature_bosambo_spawn_egg",
                         () -> new DeferredSpawnEggItem(CREATURE_BOSAMBO, 0x8A3A35, 0x219C4A, new Item.Properties()));
-
-        public static final DeferredHolder<Item, Item> RED_ENDERMANIAC_SPAWN_EGG = ITEMS.register(
-                        "red_endermaniac_spawn_egg",
-                        () -> new DeferredSpawnEggItem(RED_ENDERMANIAC, 0x161616, 0xCC00FF, new Item.Properties()));
-
-        public static final DeferredHolder<Item, Item> PINK_ENDERMANIAC_SPAWN_EGG = ITEMS.register(
-                        "pink_endermaniac_spawn_egg",
-                        () -> new DeferredSpawnEggItem(PINK_ENDERMANIAC, 0xFF66CC, 0xCC00FF, new Item.Properties()));
-
-        public static final DeferredHolder<Item, Item> BLUE_ENDERMANIAC_SPAWN_EGG = ITEMS.register(
-                        "blue_endermaniac_spawn_egg",
-                        () -> new DeferredSpawnEggItem(BLUE_ENDERMANIAC, 0x0000FF, 0x00FFFF, new Item.Properties()));
 
         @SubscribeEvent
         public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
@@ -200,6 +197,9 @@ public class JustaCreatureMobs {
 
                         event.registerEntityRenderer(BALLOON_BEE.get(),
                                         com.example.justacreature.client.renderer.BalloonBeeRenderer::new);
+
+                        event.registerEntityRenderer(BALLOON.get(),
+                                        com.example.justacreature.client.renderer.BalloonRenderer::new);
                 }
 
                 @SubscribeEvent
@@ -224,6 +224,9 @@ public class JustaCreatureMobs {
                                         com.example.justacreature.client.model.PinProjectileModel.LAYER_LOCATION,
                                         com.example.justacreature.client.model.PinProjectileModel::createBodyLayer);
 
+                        event.registerLayerDefinition(
+                                        com.example.justacreature.client.model.BalloonModel.LAYER_LOCATION,
+                                        com.example.justacreature.client.model.BalloonModel::createBodyLayer);
                 }
         }
 }
