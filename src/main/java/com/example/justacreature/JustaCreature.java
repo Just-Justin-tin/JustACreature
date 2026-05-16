@@ -32,6 +32,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.world.level.block.SoundType;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(JustaCreature.MODID)
@@ -81,6 +82,38 @@ public class JustaCreature {
 
         public static final DeferredItem<BlockItem> CRYSTALLINE_MELON_ITEM = ITEMS
                         .registerSimpleBlockItem("crystalline_melon", CRYSTALLINE_MELON);
+
+        private static DeferredBlock<Block> registerBalloon(String color) {
+                // 1. Register the block
+                DeferredBlock<Block> block = BLOCKS.registerSimpleBlock(color + "_balloon",
+                                BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                                                .strength(0.1F)
+                                                .sound(SoundType.WOOL)
+                                                .noOcclusion() // Lets players walk through it and lets light pass
+                                                .noCollission());
+
+                // 2. Register the item for the creative tab
+                ITEMS.registerSimpleBlockItem(color + "_balloon", block);
+
+                return block;
+        }
+
+        public static final DeferredBlock<Block> WHITE_BALLOON = registerBalloon("white");
+        public static final DeferredBlock<Block> RED_BALLOON = registerBalloon("red");
+        public static final DeferredBlock<Block> BLUE_BALLOON = registerBalloon("blue");
+        public static final DeferredBlock<Block> PINK_BALLOON = registerBalloon("pink");
+        public static final DeferredBlock<Block> GREEN_BALLOON = registerBalloon("green");
+        public static final DeferredBlock<Block> YELLOW_BALLOON = registerBalloon("yellow");
+        public static final DeferredBlock<Block> ORANGE_BALLOON = registerBalloon("orange");
+        public static final DeferredBlock<Block> PURPLE_BALLOON = registerBalloon("purple");
+        public static final DeferredBlock<Block> BLACK_BALLOON = registerBalloon("black");
+        public static final DeferredBlock<Block> GRAY_BALLOON = registerBalloon("gray");
+        public static final DeferredBlock<Block> BROWN_BALLOON = registerBalloon("brown");
+        public static final DeferredBlock<Block> LIME_BALLOON = registerBalloon("lime");
+        public static final DeferredBlock<Block> CYAN_BALLOON = registerBalloon("cyan");
+        public static final DeferredBlock<Block> MAGENTA_BALLOON = registerBalloon("magenta");
+        public static final DeferredBlock<Block> LIGHT_BLUE_BALLOON = registerBalloon("light_blue");
+        public static final DeferredBlock<Block> LIGHT_GRAY_BALLOON = registerBalloon("light_gray");
 
         public static final DeferredItem<Item> TUNGSTEN_INGOT = ITEMS.registerSimpleItem("tungsten_ingot");
 
@@ -196,6 +229,22 @@ public class JustaCreature {
                                                 output.accept(BLOCK_OF_TUNGSTEN.get());
                                                 output.accept(BLOCK_OF_RAW_TUNGSTEN.get());
                                                 output.accept(BOSAMBO_SADDLE.get());
+                                                output.accept(WHITE_BALLOON.get());
+                                                output.accept(RED_BALLOON.get());
+                                                output.accept(BLUE_BALLOON.get());
+                                                output.accept(PINK_BALLOON.get());
+                                                output.accept(GREEN_BALLOON.get());
+                                                output.accept(YELLOW_BALLOON.get());
+                                                output.accept(ORANGE_BALLOON.get());
+                                                output.accept(PURPLE_BALLOON.get());
+                                                output.accept(BLACK_BALLOON.get());
+                                                output.accept(GRAY_BALLOON.get());
+                                                output.accept(BROWN_BALLOON.get());
+                                                output.accept(LIME_BALLOON.get());
+                                                output.accept(CYAN_BALLOON.get());
+                                                output.accept(MAGENTA_BALLOON.get());
+                                                output.accept(LIGHT_BLUE_BALLOON.get());
+                                                output.accept(LIGHT_GRAY_BALLOON.get());
                                         }).build());
 
         // The constructor for the mod class is the first code that is run when your mod
