@@ -40,7 +40,7 @@ public class red_Endermaniac extends Monster implements RangedAttackMob {
 
             // Pick a random 3D spot nearby (up to 16 blocks away in any direction)
             double newX = oldX + (this.random.nextDouble() - 0.5D) * 32.0D;
-            double newY = oldY + (this.random.nextDouble() - 0.5D) * 32.0D;
+            double newY = oldY + (this.random.nextDouble() - 0.5D) * 8.0D;
             double newZ = oldZ + (this.random.nextDouble() - 0.5D) * 32.0D;
 
             // Don't let it teleport out of the world boundaries
@@ -81,7 +81,6 @@ public class red_Endermaniac extends Monster implements RangedAttackMob {
                 this.teleportTo(oldX, oldY, oldZ);
                 return false;
             }
-
         }
         return false;
     }
@@ -108,6 +107,7 @@ public class red_Endermaniac extends Monster implements RangedAttackMob {
         projectile.shoot(d0, d1 + d3 * 0.2D, d2, 1.6F, 1.0F);
         this.playSound(SoundEvents.SNOW_GOLEM_SHOOT, 1.0F, 0.4F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
         this.level().addFreshEntity(projectile);
+        this.teleport();
     }
 
     @Override

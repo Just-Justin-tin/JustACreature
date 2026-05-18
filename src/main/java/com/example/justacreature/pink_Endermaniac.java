@@ -43,7 +43,7 @@ public class pink_Endermaniac extends Monster {
 
             // Pick a random 3D spot nearby (up to 16 blocks away in any direction)
             double newX = oldX + (this.random.nextDouble() - 0.5D) * 32.0D;
-            double newY = oldY + (this.random.nextDouble() - 0.5D) * 32.0D;
+            double newY = oldY + (this.random.nextDouble() - 0.5D) * 8.0D;
             double newZ = oldZ + (this.random.nextDouble() - 0.5D) * 32.0D;
 
             // Don't let it teleport out of the world boundaries

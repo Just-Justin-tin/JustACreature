@@ -100,15 +100,6 @@ public class JustaCreatureMobs {
                                                         .updateInterval(10)
                                                         .build("pin_projectile"));
 
-        public static final DeferredHolder<EntityType<?>, EntityType<Balloon>> BALLOON = ENTITY_TYPES
-                        .register("balloon",
-                                        () -> EntityType.Builder.<Balloon>of((type, level) -> new Balloon(type, level),
-                                                        MobCategory.MISC)
-                                                        .sized(1.0F, 1.0F)
-                                                        .clientTrackingRange(10)
-                                                        .updateInterval(10)
-                                                        .build("balloon"));
-
         public static final DeferredHolder<Item, Item> BOSAMBO_SPAWN_EGG = ITEMS.register("creature_bosambo_spawn_egg",
                         () -> new DeferredSpawnEggItem(CREATURE_BOSAMBO, 0x8A3A35, 0x219C4A, new Item.Properties()));
 
@@ -132,7 +123,7 @@ public class JustaCreatureMobs {
                 event.put(PINK_ENDERMANIAC.get(), EnderMan.createAttributes()
                                 .add(Attributes.MAX_HEALTH, 40.0D)
                                 .add(Attributes.ATTACK_DAMAGE, 7.5D)
-                                .add(Attributes.MOVEMENT_SPEED, 2.0D)
+                                .add(Attributes.MOVEMENT_SPEED, 0.75D)
                                 .add(Attributes.FOLLOW_RANGE, 32.0D)
                                 .build());
 
@@ -198,8 +189,6 @@ public class JustaCreatureMobs {
                         event.registerEntityRenderer(BALLOON_BEE.get(),
                                         com.example.justacreature.client.renderer.BalloonBeeRenderer::new);
 
-                        event.registerEntityRenderer(BALLOON.get(),
-                                        com.example.justacreature.client.renderer.BalloonRenderer::new);
                 }
 
                 @SubscribeEvent
@@ -223,10 +212,6 @@ public class JustaCreatureMobs {
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.PinProjectileModel.LAYER_LOCATION,
                                         com.example.justacreature.client.model.PinProjectileModel::createBodyLayer);
-
-                        event.registerLayerDefinition(
-                                        com.example.justacreature.client.model.BalloonModel.LAYER_LOCATION,
-                                        com.example.justacreature.client.model.BalloonModel::createBodyLayer);
                 }
         }
 }
