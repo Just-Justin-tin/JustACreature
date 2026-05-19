@@ -1,15 +1,11 @@
 package com.example.justacreature;
 
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
@@ -17,13 +13,9 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.Snowball;
 import net.minecraft.world.level.Level;
 
 public class red_Endermaniac extends Monster implements RangedAttackMob {
@@ -64,15 +56,12 @@ public class red_Endermaniac extends Monster implements RangedAttackMob {
             // Move back up one block so the mob stands ON the ground, not inside it
             mutablePos.move(net.minecraft.core.Direction.UP);
 
-            // Attempt to move there instantly
-            this.teleportTo(newX, newY, newZ);
+            // Attempt to move there instantly using the corrected Y coordinate
+            this.teleportTo(newX, mutablePos.getY(), newZ);
 
             // Check if the new spot is clear of solid blocks (so it doesn't get stuck in a
             // wall)
             if (this.level().noCollision(this)) {
-                // Play the classic "Vwoop!" teleport sound at the OLD location
-                this.level().playSound(null, oldX, oldY, oldZ, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(),
-                        1.0F, 1.0F);
                 // Play the sound at the NEW location
                 this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
                 return true;
@@ -156,9 +145,61 @@ public class red_Endermaniac extends Monster implements RangedAttackMob {
 
     @Override
     public boolean doHurtTarget(Entity target) {
-        // We use the base mob attack damage (skipping the vanilla Bee's poison)
+        // Random attack damage between 75% and 125% of base damage
+        float multiplier = (float) (this.random.nextDouble() * 0.5 + 0.75); // 0.75 - 1.25
         boolean hitSuccessfully = target.hurt(this.damageSources().mobAttack(this),
-                (float) this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE));
+                (float) this.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
+                        * multiplier);
+
+        // 3. Have a 25% chance to teleport away after hitting the target
+        if (hitSuccessfully && !this.level().isClientSide() && this.random.nextInt(4) == 0) {
+            if (!this.level().isClientSide() && this.isAlive()) {
+                double targetX = this.getTarget().getX();
+                double targetY = this.getTarget().getY();
+                double targetZ = this.getTarget().getZ();
+
+                // Pick a random 3D spot nearby (up to 16 blocks away in any direction)
+                double newX = targetX + (this.random.nextDouble() - 0.5D) * 16.0D;
+                double newY = targetY + (this.random.nextDouble() - 0.5D) * 16.0D;
+                double newZ = targetZ + (this.random.nextDouble() - 0.5D) * 16.0D;
+
+                // Don't let it teleport out of the world boundaries
+                if (newY < this.level().getMinBuildHeight() || newY >= this.level().getMaxBuildHeight()) {
+                    return false;
+                }
+
+                net.minecraft.core.BlockPos.MutableBlockPos mutablePos = new net.minecraft.core.BlockPos.MutableBlockPos(
+                        newX, newY, newZ);
+
+                // Move down until we hit a block that is NOT empty (i.e., solid ground)
+                while (mutablePos.getY() > this.level().getMinBuildHeight() && this.level().isEmptyBlock(mutablePos)) {
+                    mutablePos.move(net.minecraft.core.Direction.DOWN);
+                }
+
+                // If it fell all the way out of the world, cancel teleport
+                if (mutablePos.getY() <= this.level().getMinBuildHeight()) {
+                    return false;
+                }
+
+                // Move back up one block so the mob stands ON the ground, not inside it
+                mutablePos.move(net.minecraft.core.Direction.UP);
+
+                // Attempt to move there instantly using the corrected Y coordinate
+                this.teleportTo(newX, mutablePos.getY(), newZ);
+
+                // Check if the new spot is clear of solid blocks (so it doesn't get stuck in a
+                // wall)
+                if (this.level().noCollision(this)) {
+                    // Play the sound at the NEW location
+                    this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+                    return true;
+                } else {
+                    // If it accidentally teleported inside a wall, revert the teleport!
+                    this.teleportTo(this.getX(), this.getY(), this.getZ());
+                    return false;
+                }
+            }
+        }
 
         return hitSuccessfully;
     }

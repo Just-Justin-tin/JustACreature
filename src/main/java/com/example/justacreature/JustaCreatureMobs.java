@@ -89,6 +89,13 @@ public class JustaCreatureMobs {
                                                         .clientTrackingRange(10)
                                                         .build("balloon_bee"));
 
+        public static final DeferredHolder<EntityType<?>, EntityType<BouncyBall>> BOUNCY_BALL = ENTITY_TYPES
+                        .register("bouncyball",
+                                        () -> EntityType.Builder.of(BouncyBall::new, MobCategory.MONSTER)
+                                                        .sized(0.5F, 0.5F)
+                                                        .clientTrackingRange(10)
+                                                        .build("bouncyball"));
+
         public static final DeferredHolder<EntityType<?>, EntityType<PinProjectile>> PIN_PROJECTILE = ENTITY_TYPES
                         .register("pin_projectile",
                                         () -> EntityType.Builder
@@ -123,7 +130,7 @@ public class JustaCreatureMobs {
                 event.put(PINK_ENDERMANIAC.get(), EnderMan.createAttributes()
                                 .add(Attributes.MAX_HEALTH, 40.0D)
                                 .add(Attributes.ATTACK_DAMAGE, 7.5D)
-                                .add(Attributes.MOVEMENT_SPEED, 0.75D)
+                                .add(Attributes.MOVEMENT_SPEED, 0.35D)
                                 .add(Attributes.FOLLOW_RANGE, 32.0D)
                                 .build());
 

@@ -71,7 +71,7 @@ public class BalloonCreeper extends Creeper {
 
         // 1. Movement and Action Goals
         this.goalSelector.addGoal(1, new SwellGoal(this));
-        this.goalSelector.addGoal(2, new LeapAtTargetGoal(this, 0.4F)); // Makes them jump at you!
+        this.goalSelector.addGoal(2, new LeapAtTargetGoal(this, 1.0F)); // Makes them jump at you!
         this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2D, false)); // Run at target and hit them
         this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.0D)); // Wander when bored
         this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 8.0F));

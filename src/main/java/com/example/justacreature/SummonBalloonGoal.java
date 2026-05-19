@@ -90,7 +90,7 @@ public class SummonBalloonGoal extends Goal {
             level.addFreshEntity(balloonMob);
 
             // Play a fun "pop" or wool sound when summoned
-            level.playSound(null, this.endermaniac.blockPosition(), SoundEvents.WOOL_PLACE, SoundSource.HOSTILE, 1.0f,
+            level.playSound(null, this.endermaniac.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.HOSTILE, 1.0f,
                     1.0f);
 
             // Add some poof particles

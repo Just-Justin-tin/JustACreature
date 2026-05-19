@@ -1,9 +1,11 @@
 package com.example.justacreature;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -67,15 +69,12 @@ public class pink_Endermaniac extends Monster {
             // Move back up one block so the mob stands ON the ground, not inside it
             mutablePos.move(net.minecraft.core.Direction.UP);
 
-            // Attempt to move there instantly
-            this.teleportTo(newX, newY, newZ);
+            // Attempt to move there instantly using the corrected Y coordinate
+            this.teleportTo(newX, mutablePos.getY(), newZ);
 
             // Check if the new spot is clear of solid blocks (so it doesn't get stuck in a
             // wall)
             if (this.level().noCollision(this)) {
-                // Play the classic "Vwoop!" teleport sound at the OLD location
-                this.level().playSound(null, oldX, oldY, oldZ, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(),
-                        1.0F, 1.0F);
                 // Play the sound at the NEW location
                 this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
                 return true;
@@ -140,7 +139,8 @@ public class pink_Endermaniac extends Monster {
         // 2. Take normal damage from swords/melee
         boolean wasHurt = super.hurt(source, amount);
 
-        // 3. Have a 50% chance to teleport away after getting hit by a sword
+        // 3. Have a 50% chance to teleport away between 1 and 4 times after getting hit
+        // by a sword
         if (wasHurt && !this.level().isClientSide() && this.random.nextInt(2) == 0) {
             for (int i = 0; i < this.random.nextInt(5); i++) {
                 this.teleport();
@@ -148,5 +148,34 @@ public class pink_Endermaniac extends Monster {
         }
 
         return wasHurt;
+    }
+
+    @Override
+    public boolean doHurtTarget(Entity target) {
+        boolean hitSuccessfully = super.doHurtTarget(target);
+        // Only spawn entities on the server side
+        if (hitSuccessfully && !this.level().isClientSide() && this.random.nextInt(4) == 0) {
+            ServerLevel serverLevel = (ServerLevel) this.level();
+
+            // 1. Create an instance of your custom slime entity
+            BouncyBall newSlime = JustaCreatureMobs.BOUNCY_BALL.get().create(serverLevel);
+
+            if (newSlime != null) {
+                // 2. Set the spawn position (e.g., at the current mob's location)
+                newSlime.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(),
+                        this.getXRot());
+
+                // 3. Randomize the size to either 1 (Small) or 2 (Medium)
+                int slimeSize = this.getRandom().nextBoolean() ? 1 : 2;
+
+                // Apply the size. The second parameter 'true' recalculates max health based on
+                // the size.
+                newSlime.setSize(slimeSize, true);
+
+                // 4. Finally, spawn the entity into the world
+                serverLevel.addFreshEntity(newSlime);
+            }
+        }
+        return hitSuccessfully;
     }
 }
