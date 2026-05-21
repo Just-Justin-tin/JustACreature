@@ -10,6 +10,7 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -163,6 +164,9 @@ public class JustaCreatureMobs {
                                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                                 .add(Attributes.ATTACK_DAMAGE, 2.0D)
                                 .build());
+
+                event.put(BOUNCY_BALL.get(), Monster.createMonsterAttributes()
+                                .build());
         }
 
         @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -196,6 +200,8 @@ public class JustaCreatureMobs {
                         event.registerEntityRenderer(BALLOON_BEE.get(),
                                         com.example.justacreature.client.renderer.BalloonBeeRenderer::new);
 
+                        event.registerEntityRenderer(BOUNCY_BALL.get(),
+                                        com.example.justacreature.client.renderer.BouncyBallRenderer::new);
                 }
 
                 @SubscribeEvent

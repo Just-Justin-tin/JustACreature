@@ -154,7 +154,7 @@ public class pink_Endermaniac extends Monster {
     public boolean doHurtTarget(Entity target) {
         boolean hitSuccessfully = super.doHurtTarget(target);
         // Only spawn entities on the server side
-        if (hitSuccessfully && !this.level().isClientSide() && this.random.nextInt(4) == 0) {
+        if (hitSuccessfully && !this.level().isClientSide() && this.random.nextInt(3) == 0) {
             ServerLevel serverLevel = (ServerLevel) this.level();
 
             // 1. Create an instance of your custom slime entity
