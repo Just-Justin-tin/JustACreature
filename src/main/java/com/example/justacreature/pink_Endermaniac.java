@@ -166,7 +166,7 @@ public class pink_Endermaniac extends Monster {
                         this.getXRot());
 
                 // 3. Randomize the size to either 1 (Small) or 2 (Medium)
-                int slimeSize = this.getRandom().nextBoolean() ? 1 : 2;
+                int slimeSize = this.getRandom().nextBoolean() ? 2 : 1;
 
                 // Apply the size. The second parameter 'true' recalculates max health based on
                 // the size.
