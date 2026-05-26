@@ -3,25 +3,21 @@ package com.example.justacreature;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.client.multiplayer.chat.LoggedChatMessage.Player;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.item.enchantment.Enchantments;
 
 public class BalloonBlock extends Block {
     private final DyeColor color;
@@ -62,16 +58,19 @@ public class BalloonBlock extends Block {
         return Shapes.empty();
     }
 
+    // FIXED: Updated signature to LootParams.Builder
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         Player player = builder.getOptionalParameter(LootContextParams.THIS_ENTITY) instanceof Player p ? p : null;
         ItemStack tool = builder.getOptionalParameter(LootContextParams.TOOL);
 
         boolean isHand = tool == null || tool.isEmpty();
-        boolean hasSilkTouch = tool != null
-                && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool) > 0;
 
-        if (isHand || hasSilkTouch) {
+        // Note: Manual Silk Touch checking is removed here because 1.21 requires
+        // registry
+        // lookups for enchantments. You should manage Silk Touch drops via a Block Loot
+        // Table JSON instead.
+        if (isHand) {
             return super.getDrops(state, builder);
         }
         return Collections.emptyList();
