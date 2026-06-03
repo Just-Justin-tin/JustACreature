@@ -3,7 +3,9 @@ package com.example.justacreature;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate.Enchantments;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -72,7 +74,9 @@ public class BalloonBlock extends Block {
      * Uses NeoForge 1.21.1 registry-aware EnchantmentHelper with tag lookup.
      */
     private static boolean hasSilkTouch(ItemStack tool) {
-        if (tool == null || tool.isEmpty()) return false;
-        return EnchantmentHelper.getTagEnchantmentLevel(EnchantmentTags.SILK_TOUCH, tool) > 0;
+        if (tool == null || tool.isEmpty())
+            return false;
+        // PREVENTS_BEE_SPAWNS_WHEN_MINING is the tag Silk Touch belongs to in 1.21.1
+        return EnchantmentHelper.hasTag(tool, EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING);
     }
 }
