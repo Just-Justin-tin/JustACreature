@@ -61,9 +61,9 @@ public class BalloonBlock extends Block {
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         ItemStack tool = builder.getOptionalParameter(LootContextParams.TOOL);
 
-        // Only drop the block itself if the tool has Silk Touch; otherwise pop nothing
-        if (hasSilkTouch(tool)) {
-            return super.getDrops(state, builder);
+        if (tool != null && !tool.isEmpty() &&
+                EnchantmentHelper.hasTag(tool, EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
+            return List.of(new ItemStack(this.asItem()));
         }
 
         return Collections.emptyList();
