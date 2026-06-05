@@ -57,20 +57,18 @@ public class BalloonBlock extends Block {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
-        LootParams params = builder.create(LootContextParamSets.BLOCK);
-        ItemStack tool = params.getOptionalParameter(LootContextParams.TOOL);
-
-        if (tool != null && !tool.isEmpty()) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state,
+            net.minecraft.world.entity.player.Player player) {
+        if (!level.isClientSide) {
+            ItemStack tool = player.getMainHandItem();
             var enchantments = tool.get(DataComponents.ENCHANTMENTS);
-            if (enchantments != null) {
-                for (var holder : enchantments.keySet()) {
-                    if (holder.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
-                        return List.of(new ItemStack(this.asItem()));
-                    }
-                }
+            boolean hasSilkTouch = enchantments != null && enchantments.keySet().stream()
+                    .anyMatch(h -> h.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING));
+
+            if (hasSilkTouch) {
+                Block.popResource(level, pos, new ItemStack(this.asItem()));
             }
         }
-        return Collections.emptyList();
+        return super.playerWillDestroy(level, pos, state, player);
     }
 }
