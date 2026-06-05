@@ -21,6 +21,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public class BalloonBlock extends Block {
     private final DyeColor color;
@@ -60,23 +62,19 @@ public class BalloonBlock extends Block {
     @Override
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
         ItemStack tool = builder.getOptionalParameter(LootContextParams.TOOL);
-
-        if (tool != null && !tool.isEmpty() &&
-                EnchantmentHelper.hasTag(tool, EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
+        if (hasSilkTouch(tool)) {
             return List.of(new ItemStack(this.asItem()));
         }
-
         return Collections.emptyList();
     }
 
-    /**
-     * Returns true if the given ItemStack has Silk Touch.
-     * Uses NeoForge 1.21.1 registry-aware EnchantmentHelper with tag lookup.
-     */
     private static boolean hasSilkTouch(ItemStack tool) {
         if (tool == null || tool.isEmpty())
             return false;
-        // PREVENTS_BEE_SPAWNS_WHEN_MINING is the tag Silk Touch belongs to in 1.21.1
-        return EnchantmentHelper.hasTag(tool, EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING);
+        ItemEnchantments enchantments = tool.get(DataComponents.ENCHANTMENTS);
+        if (enchantments == null)
+            return false;
+        return enchantments.keySet().stream()
+                .anyMatch(h -> h.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING));
     }
 }
