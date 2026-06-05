@@ -3,26 +3,23 @@ package com.example.justacreature;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate.Enchantments;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 public class BalloonBlock extends Block {
     private final DyeColor color;
@@ -61,20 +58,20 @@ public class BalloonBlock extends Block {
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
-        ItemStack tool = builder.getOptionalParameter(LootContextParams.TOOL);
-        if (hasSilkTouch(tool)) {
-            return List.of(new ItemStack(this.asItem()));
+        LootParams params = builder.create(LootContextParamSets.BLOCK);
+        ItemStack tool = params.getOptionalParameter(LootContextParams.TOOL);
+
+        if (tool != null && !tool.isEmpty()) {
+            var lookup = params.getLevel().registryAccess();
+            var enchantments = tool.get(net.minecraft.core.component.DataComponents.ENCHANTMENTS);
+            if (enchantments != null) {
+                for (var entry : enchantments.entrySet()) {
+                    if (entry.getKey().is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
+                        return List.of(new ItemStack(this.asItem()));
+                    }
+                }
+            }
         }
         return Collections.emptyList();
-    }
-
-    private static boolean hasSilkTouch(ItemStack tool) {
-        if (tool == null || tool.isEmpty())
-            return false;
-        ItemEnchantments enchantments = tool.get(DataComponents.ENCHANTMENTS);
-        if (enchantments == null)
-            return false;
-        return enchantments.keySet().stream()
-                .anyMatch(h -> h.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING));
     }
 }
