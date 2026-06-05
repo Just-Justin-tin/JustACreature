@@ -249,15 +249,15 @@ public class EnderManiac<T extends Entity> extends EntityModel<T> {
 
 	@Override
 	public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay,
-			float red, float green, float blue, float alpha) {
-		body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		head.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		right_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		left_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		right_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		left_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		maniac1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		maniac2.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
-		maniac3.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+			float color) {
+		body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		right_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		left_arm.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		right_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		left_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		maniac1.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		maniac2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+		maniac3.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
 	}
 }
