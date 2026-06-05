@@ -9,7 +9,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -21,7 +20,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.server.level.ServerLevel;
 
 public class BalloonBlock extends Block {
     private final DyeColor color;
@@ -64,29 +62,15 @@ public class BalloonBlock extends Block {
         ItemStack tool = params.getOptionalParameter(LootContextParams.TOOL);
 
         if (tool != null && !tool.isEmpty()) {
-            var lookup = params.getLevel().registryAccess();
-            var enchantments = tool.get(net.minecraft.core.component.DataComponents.ENCHANTMENTS);
+            var enchantments = tool.get(DataComponents.ENCHANTMENTS);
             if (enchantments != null) {
-                for (var entry : enchantments.entrySet()) {
-                    if (entry.getKey().is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
+                for (var holder : enchantments.keySet()) {
+                    if (holder.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
                         return List.of(new ItemStack(this.asItem()));
                     }
                 }
             }
         }
         return Collections.emptyList();
-    }
-
-    @Override
-    public void spawnAfterBreak(BlockState state, ServerLevel level, BlockPos pos,
-            ItemStack stack, boolean dropExperience) {
-        ItemEnchantments enchantments = stack.get(DataComponents.ENCHANTMENTS);
-        boolean silkTouch = enchantments != null && enchantments.keySet().stream()
-                .anyMatch(h -> h.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING));
-
-        if (silkTouch) {
-            Block.popResource(level, pos, new ItemStack(this.asItem()));
-        }
-        // don't call super — no default drops
     }
 }
