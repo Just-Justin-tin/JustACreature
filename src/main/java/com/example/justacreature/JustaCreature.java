@@ -66,7 +66,8 @@ public class JustaCreature {
 
         public static final DeferredBlock<Block> BLOCK_OF_TUNGSTEN = BLOCKS
                         .registerSimpleBlock("block_of_tungsten",
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
+                                                        .requiresCorrectToolForDrops());
 
         public static final DeferredItem<BlockItem> BLOCK_OF_TUNGSTEN_ITEM = ITEMS
                         .registerSimpleBlockItem("block_of_tungsten", BLOCK_OF_TUNGSTEN);
@@ -122,8 +123,7 @@ public class JustaCreature {
         // 2. THE ATTACHED STEM BLOCK
         public static final DeferredBlock<Block> ATTACHED_CRYSTALLINE_STEM = BLOCKS.register(
                         "attached_crystalline_stem",
-                        () -> new net.minecraft.world.level.block.AttachedStemBlock( // <-- Uses Vanilla
-                                                                                     // AttachedStemBlock
+                        () -> new net.minecraft.world.level.block.AttachedStemBlock(
                                         net.minecraft.resources.ResourceKey.create(
                                                         net.minecraft.core.registries.Registries.BLOCK,
                                                         net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
@@ -133,9 +133,7 @@ public class JustaCreature {
                                                         net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
                                                                         MODID, "crystalline_melon")),
                                         net.minecraft.resources.ResourceKey.create(
-                                                        net.minecraft.core.registries.Registries.ITEM, // <--
-                                                                                                       // Seed
-                                                                                                       // Key!
+                                                        net.minecraft.core.registries.Registries.ITEM,
                                                         net.minecraft.resources.ResourceLocation
                                                                         .fromNamespaceAndPath(MODID, "shiny_seeds")),
                                         BlockBehaviour.Properties.ofFullCopy(Blocks.ATTACHED_MELON_STEM)));
@@ -153,9 +151,7 @@ public class JustaCreature {
                                                                         MODID,
                                                                         "attached_crystalline_stem")),
                                         net.minecraft.resources.ResourceKey.create(
-                                                        net.minecraft.core.registries.Registries.ITEM, // <--
-                                                                                                       // Seed
-                                                                                                       // Key!
+                                                        net.minecraft.core.registries.Registries.ITEM,
                                                         net.minecraft.resources.ResourceLocation
                                                                         .fromNamespaceAndPath(MODID, "shiny_seeds")),
                                         CRYSTALLINE_MELON,
@@ -166,8 +162,6 @@ public class JustaCreature {
                         () -> new net.minecraft.world.item.ItemNameBlockItem(CRYSTALLINE_STEM.get(),
                                         new Item.Properties()));
 
-        // Creates a new food item with the id "justacreature:example_id", nutrition 1
-        // and saturation 2
         public static final DeferredHolder<SoundEvent, SoundEvent> BOSAMBO_DIG = SOUNDS.register("bosambo_dig",
                         () -> SoundEvent.createVariableRangeEvent(
                                         ResourceLocation.fromNamespaceAndPath(MODID, "bosambo_dig")));
@@ -205,14 +199,9 @@ public class JustaCreature {
         public static final DeferredItem<Item> CRYSTALLINE_MELON_SLICE = ITEMS
                         .registerSimpleItem("crystalline_melon_slice");
 
-        // Creates a creative tab with the id "justacreature:example_tab" for the
-        // example item, that is placed after the combat tab
         public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS
                         .register("example_tab", () -> CreativeModeTab.builder()
-                                        .title(Component.translatable("itemGroup.justacreature")) // The language key
-                                                                                                  // for the title of
-                                                                                                  // your
-                                                                                                  // CreativeModeTab
+                                        .title(Component.translatable("itemGroup.justacreature"))
                                         .withTabsBefore(CreativeModeTabs.COMBAT)
                                         .icon(() -> BOSAMBO_EGG_BLOCK_ITEM.get().getDefaultInstance())
                                         .displayItems((parameters, output) -> {
@@ -245,41 +234,24 @@ public class JustaCreature {
                                                 output.accept(LIGHT_GRAY_BALLOON.get());
                                         }).build());
 
-        // The constructor for the mod class is the first code that is run when your mod
-        // is loaded.
-        // FML will recognize some parameter types like IEventBus or ModContainer and
-        // pass them in automatically.
         public JustaCreature(IEventBus modEventBus, ModContainer modContainer) {
-                // Register the commonSetup method for modloading
                 modEventBus.addListener(this::commonSetup);
 
-                // Register the Deferred Register to the mod event bus so blocks get registered
                 BLOCKS.register(modEventBus);
-                // Register the Deferred Register to the mod event bus so items get registered
                 ITEMS.register(modEventBus);
-                // Register the Deferred Register to the mod event bus so tabs get registered
                 CREATIVE_MODE_TABS.register(modEventBus);
                 SOUNDS.register(modEventBus);
                 JustaCreatureMobs.ENTITY_TYPES.register(modEventBus);
                 JustaCreatureMobs.ITEMS.register(modEventBus);
 
-                // Register ourselves for server and other game events we are interested in.
-                // Note that this is necessary if and only if we want *this* class
-                // (JustaCreature) to respond directly to events.
-                // Do not add this line if there are no @SubscribeEvent-annotated functions in
-                // this class, like onServerStarting() below.
                 NeoForge.EVENT_BUS.register(this);
 
-                // Register the item to a creative tab
                 modEventBus.addListener(this::addCreative);
 
-                // Register our mod's ModConfigSpec so that FML can create and load the config
-                // file for us
                 modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         }
 
         private void commonSetup(FMLCommonSetupEvent event) {
-                // Some common setup code
                 LOGGER.info("HELLO FROM COMMON SETUP");
 
                 if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
@@ -291,17 +263,13 @@ public class JustaCreature {
                 Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
         }
 
-        // Add the example block item to the building blocks tab
         private void addCreative(BuildCreativeModeTabContentsEvent event) {
                 if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-                        // Nothing here anymore since example block is removed
                 }
         }
 
-        // You can use SubscribeEvent and let the Event Bus discover methods to call
         @SubscribeEvent
         public void onServerStarting(ServerStartingEvent event) {
-                // Do something when the server starts
                 LOGGER.info("HELLO from server starting");
         }
 
