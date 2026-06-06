@@ -3,16 +3,15 @@
     "pools": [
         {
             "rolls": 1,
+            "conditions": [
+                {
+                    "condition": "minecraft:survives_explosion"
+                }
+            ],
             "entries": [
                 {
                     "type": "minecraft:item",
-                    "name": "justacreature:block_of_tungsten",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        }
-                    ]
+                    "name": "justacreature:block_of_tungsten"
                 }
             ]
         }

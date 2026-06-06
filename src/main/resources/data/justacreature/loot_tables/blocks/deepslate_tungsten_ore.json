@@ -3,15 +3,16 @@
     "pools": [
         {
             "rolls": 1,
+            "conditions": [
+                {
+                    "condition": "minecraft:survives_explosion"
+                }
+            ],
             "entries": [
                 {
                     "type": "minecraft:item",
                     "name": "justacreature:raw_tungsten",
                     "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
                         {
                             "function": "minecraft:apply_bonus",
                             "enchantment": "minecraft:fortune",
