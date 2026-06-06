@@ -66,8 +66,7 @@ public class JustaCreature {
 
         public static final DeferredBlock<Block> BLOCK_OF_TUNGSTEN = BLOCKS
                         .registerSimpleBlock("block_of_tungsten",
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
-                                                        .requiresCorrectToolForDrops());
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK));
 
         public static final DeferredItem<BlockItem> BLOCK_OF_TUNGSTEN_ITEM = ITEMS
                         .registerSimpleBlockItem("block_of_tungsten", BLOCK_OF_TUNGSTEN);
