@@ -1,8 +1,0 @@
-{
-    "replace": false,
-    "values": [],
-    "remove": [
-        "justacreature:deepslate_tungsten_ore",
-        "justacreature:block_of_raw_tungsten"
-    ]
-}

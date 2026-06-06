@@ -58,21 +58,24 @@ public class JustaCreature {
 
         public static final DeferredBlock<Block> DEEPSLATE_TUNGSTEN_ORE = BLOCKS
                         .registerSimpleBlock("deepslate_tungsten_ore",
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE_IRON_ORE)
+                                                        .requiresCorrectToolForDrops());
 
         public static final DeferredItem<BlockItem> DEEPSLATE_TUNGSTEN_ORE_ITEM = ITEMS
                         .registerSimpleBlockItem("deepslate_tungsten_ore", DEEPSLATE_TUNGSTEN_ORE);
 
         public static final DeferredBlock<Block> BLOCK_OF_TUNGSTEN = BLOCKS
                         .registerSimpleBlock("block_of_tungsten",
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
+                                                        .requiresCorrectToolForDrops());
 
         public static final DeferredItem<BlockItem> BLOCK_OF_TUNGSTEN_ITEM = ITEMS
                         .registerSimpleBlockItem("block_of_tungsten", BLOCK_OF_TUNGSTEN);
 
         public static final DeferredBlock<Block> BLOCK_OF_RAW_TUNGSTEN = BLOCKS
                         .registerSimpleBlock("block_of_raw_tungsten",
-                                        BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK));
+                                        BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK)
+                                                        .requiresCorrectToolForDrops());
 
         public static final DeferredItem<BlockItem> BLOCK_OF_RAW_TUNGSTEN_ITEM = ITEMS
                         .registerSimpleBlockItem("block_of_raw_tungsten", BLOCK_OF_RAW_TUNGSTEN);
