@@ -60,7 +60,7 @@ public class JustaCreature {
                         .registerSimpleBlock("deepslate_tungsten_ore",
                                         BlockBehaviour.Properties.of()
                                                         .mapColor(MapColor.COLOR_GREEN)
-                                                        .strength(5.0F, 6.0F)
+                                                        .strength(5.0F, 1000.0F)
                                                         .sound(SoundType.DEEPSLATE)
                                                         .requiresCorrectToolForDrops());
 
@@ -71,7 +71,7 @@ public class JustaCreature {
                         .registerSimpleBlock("block_of_tungsten",
                                         BlockBehaviour.Properties.of()
                                                         .mapColor(MapColor.COLOR_GREEN)
-                                                        .strength(5.0F, 6.0F)
+                                                        .strength(5.0F, 1000.0F)
                                                         .sound(SoundType.NETHERITE_BLOCK)
                                                         .requiresCorrectToolForDrops());
 
@@ -82,7 +82,7 @@ public class JustaCreature {
                         .registerSimpleBlock("block_of_raw_tungsten",
                                         BlockBehaviour.Properties.of()
                                                         .mapColor(MapColor.COLOR_GREEN)
-                                                        .strength(5.0F, 6.0F)
+                                                        .strength(5.0F, 1000.0F)
                                                         .sound(SoundType.METAL)
                                                         .requiresCorrectToolForDrops());
 
