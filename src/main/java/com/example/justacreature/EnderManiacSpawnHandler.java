@@ -17,29 +17,29 @@ import java.util.List;
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
-    private static final int SPAWN_CHANCE = 10;
+    private static final int SPAWN_CHANCE = 5;
 
     private static Block[] BALLOON_BLOCKS = null;
 
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
-                JustaCreature.WHITE_BALLOON.get(),
-                JustaCreature.RED_BALLOON.get(),
-                JustaCreature.BLUE_BALLOON.get(),
-                JustaCreature.PINK_BALLOON.get(),
-                JustaCreature.GREEN_BALLOON.get(),
-                JustaCreature.YELLOW_BALLOON.get(),
-                JustaCreature.ORANGE_BALLOON.get(),
-                JustaCreature.PURPLE_BALLOON.get(),
-                JustaCreature.BLACK_BALLOON.get(),
-                JustaCreature.GRAY_BALLOON.get(),
-                JustaCreature.BROWN_BALLOON.get(),
-                JustaCreature.LIME_BALLOON.get(),
-                JustaCreature.CYAN_BALLOON.get(),
-                JustaCreature.MAGENTA_BALLOON.get(),
-                JustaCreature.LIGHT_BLUE_BALLOON.get(),
-                JustaCreature.LIGHT_GRAY_BALLOON.get()
+                    JustaCreature.WHITE_BALLOON.get(),
+                    JustaCreature.RED_BALLOON.get(),
+                    JustaCreature.BLUE_BALLOON.get(),
+                    JustaCreature.PINK_BALLOON.get(),
+                    JustaCreature.GREEN_BALLOON.get(),
+                    JustaCreature.YELLOW_BALLOON.get(),
+                    JustaCreature.ORANGE_BALLOON.get(),
+                    JustaCreature.PURPLE_BALLOON.get(),
+                    JustaCreature.BLACK_BALLOON.get(),
+                    JustaCreature.GRAY_BALLOON.get(),
+                    JustaCreature.BROWN_BALLOON.get(),
+                    JustaCreature.LIME_BALLOON.get(),
+                    JustaCreature.CYAN_BALLOON.get(),
+                    JustaCreature.MAGENTA_BALLOON.get(),
+                    JustaCreature.LIGHT_BLUE_BALLOON.get(),
+                    JustaCreature.LIGHT_GRAY_BALLOON.get()
             };
         }
         return BALLOON_BLOCKS;
@@ -48,12 +48,17 @@ public class EnderManiacSpawnHandler {
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         try {
-            if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
-            if (serverLevel.dimension() != Level.END) return;
-            if (!event.isNewChunk()) return;
-            if (!(event.getChunk() instanceof LevelChunk chunk)) return;
+            if (!(event.getLevel() instanceof ServerLevel serverLevel))
+                return;
+            if (serverLevel.dimension() != Level.END)
+                return;
+            if (!event.isNewChunk())
+                return;
+            if (!(event.getChunk() instanceof LevelChunk chunk))
+                return;
 
-            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
+            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
+                return;
 
             int chunkX = chunk.getPos().getMinBlockX();
             int chunkZ = chunk.getPos().getMinBlockZ();
@@ -79,7 +84,8 @@ public class EnderManiacSpawnHandler {
                 }
             }
 
-            if (validChorusBlocks.isEmpty()) return;
+            if (validChorusBlocks.isEmpty())
+                return;
 
             // Pick ONE random chorus block from the valid list
             Collections.shuffle(validChorusBlocks, new java.util.Random(serverLevel.getRandom().nextLong()));
@@ -92,12 +98,15 @@ public class EnderManiacSpawnHandler {
             Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
             serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
 
-            // Drop down from near the balloon to find solid ground, then spawn the EnderManiac
+            // Drop down from near the balloon to find solid ground, then spawn the
+            // EnderManiac
             BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
-            if (spawnPos == null) return;
+            if (spawnPos == null)
+                return;
 
             EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
-            if (mob == null) return;
+            if (mob == null)
+                return;
             mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
                     serverLevel.getRandom().nextFloat() * 360f, 0f);
             mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
@@ -105,7 +114,8 @@ public class EnderManiacSpawnHandler {
             serverLevel.addFreshEntity(mob);
 
         } catch (Exception e) {
-            JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed on chunk load: {}", e.getMessage());
+            JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed on chunk load: {}",
+                    e.getMessage());
         }
     }
 
