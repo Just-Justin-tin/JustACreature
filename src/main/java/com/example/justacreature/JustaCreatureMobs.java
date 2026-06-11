@@ -239,8 +239,8 @@ public class JustaCreatureMobs {
                                         com.example.justacreature.client.model.blue_EndermaniacModel::createBodyLayer);
 
                         event.registerLayerDefinition(
-                                        com.example.justacreature.client.model.Endermaniac.LAYER_LOCATION,
-                                        com.example.justacreature.client.model.Endermaniac::createBodyLayer);
+                                        com.example.justacreature.client.model.EnderManiacModel.LAYER_LOCATION,
+                                        com.example.justacreature.client.model.EnderManiacModel::createBodyLayer);
 
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.PinProjectileModel.LAYER_LOCATION,
