@@ -20,7 +20,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.minecraft.client.renderer.entity.SnifferRenderer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.MOD)
@@ -61,6 +60,13 @@ public class JustaCreatureMobs {
                                                         .clientTrackingRange(10)
                                                         .fireImmune()
                                                         .build("blue_endermaniac"));
+
+        public static final DeferredHolder<EntityType<?>, EntityType<EnderManiac>> ENDER_MANIAC = ENTITY_TYPES
+                        .register("ender_maniac",
+                                        () -> EntityType.Builder.of(EnderManiac::new, MobCategory.MONSTER)
+                                                        .sized(0.6F, 2.9F)
+                                                        .clientTrackingRange(10)
+                                                        .build("ender_maniac"));
 
         public static final DeferredHolder<EntityType<?>, EntityType<BalloonCreeper>> BALLOON_CREEPER = ENTITY_TYPES
                         .register("balloon_creeper",
@@ -143,8 +149,15 @@ public class JustaCreatureMobs {
                                 .add(Attributes.GRAVITY, 0.05D)
                                 .build());
 
+                event.put(ENDER_MANIAC.get(), EnderMan.createAttributes()
+                                .add(Attributes.MAX_HEALTH, 60.0D)
+                                .add(Attributes.ATTACK_DAMAGE, 6.0D)
+                                .add(Attributes.MOVEMENT_SPEED, 0.3D)
+                                .add(Attributes.FOLLOW_RANGE, 32.0D)
+                                .build());
+
                 event.put(BALLOON_WOLF.get(), Wolf.createAttributes()
-                                .add(Attributes.MAX_HEALTH, 1.0D) // Pops instantly!
+                                .add(Attributes.MAX_HEALTH, 1.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                                 .add(Attributes.ATTACK_DAMAGE, 4.0D)
                                 .build());
@@ -185,6 +198,9 @@ public class JustaCreatureMobs {
                         event.registerEntityRenderer(BLUE_ENDERMANIAC.get(),
                                         com.example.justacreature.client.renderer.blue_EndermaniacRenderer::new);
 
+                        event.registerEntityRenderer(ENDER_MANIAC.get(),
+                                        com.example.justacreature.client.renderer.EnderManiacRenderer::new);
+
                         event.registerEntityRenderer(PIN_PROJECTILE.get(),
                                         com.example.justacreature.client.renderer.PinProjectileRenderer::new);
 
@@ -221,6 +237,10 @@ public class JustaCreatureMobs {
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.blue_EndermaniacModel.LAYER_LOCATION,
                                         com.example.justacreature.client.model.blue_EndermaniacModel::createBodyLayer);
+
+                        event.registerLayerDefinition(
+                                        com.example.justacreature.client.model.Endermaniac.LAYER_LOCATION,
+                                        com.example.justacreature.client.model.Endermaniac::createBodyLayer);
 
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.PinProjectileModel.LAYER_LOCATION,
