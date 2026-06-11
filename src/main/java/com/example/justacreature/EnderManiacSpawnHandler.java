@@ -59,8 +59,6 @@ public class EnderManiacSpawnHandler {
         final int chunkX = chunk.getPos().getMinBlockX();
         final int chunkZ = chunk.getPos().getMinBlockZ();
 
-        // Defer ALL block reading/writing to the next server tick.
-        // This means the chunk load thread is never blocked, which stops the infinite save hang.
         serverLevel.getServer().execute(() -> {
             try {
                 doSpawn(serverLevel, chunkX, chunkZ);
@@ -74,30 +72,36 @@ public class EnderManiacSpawnHandler {
         int minY = 50;
         int maxY = 100;
 
-        BlockPos balloonPos = null;
+        // Probe MAX_PROBES random columns and track the HIGHEST valid balloon position found.
+        // A valid position is an air block directly below a chorus plant or flower.
+        BlockPos bestBalloonPos = null;
+
         for (int probe = 0; probe < MAX_PROBES; probe++) {
             int rx = chunkX + serverLevel.getRandom().nextInt(16);
             int rz = chunkZ + serverLevel.getRandom().nextInt(16);
 
-            for (int y = minY + 1; y < maxY; y++) {
+            // Scan TOP-DOWN so the first hit in this column is already the highest one.
+            for (int y = maxY - 1; y > minY; y--) {
                 BlockPos pos = new BlockPos(rx, y, rz);
                 Block b = serverLevel.getBlockState(pos).getBlock();
                 if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
                         && serverLevel.getBlockState(pos.below()).isAir()) {
-                    balloonPos = pos.below();
-                    break;
+                    // Keep this position only if it is higher than any previously found
+                    if (bestBalloonPos == null || pos.getY() > bestBalloonPos.getY() + 1) {
+                        bestBalloonPos = pos.below();
+                    }
+                    break; // no need to scan lower in this column
                 }
             }
-            if (balloonPos != null) break;
         }
 
-        if (balloonPos == null) return;
+        if (bestBalloonPos == null) return;
 
         Block[] balloons = getBalloonBlocks();
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
-        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
+        serverLevel.setBlock(bestBalloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
 
-        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
+        BlockPos spawnPos = findGroundNear(serverLevel, bestBalloonPos);
         if (spawnPos == null) return;
 
         EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
@@ -109,15 +113,8 @@ public class EnderManiacSpawnHandler {
         serverLevel.addFreshEntity(mob);
     }
 
-    /**
-     * Finds a ground position at least 2 blocks away (horizontally) from the balloon.
-     * Tries random offsets in the range [-5, -2] and [2, 5] on both axes,
-     * then drops straight down until it finds air above a solid block.
-     */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int minY = level.getMinBuildHeight();
-
-        // All offsets here have |x| >= 2 or |z| >= 2, guaranteeing minimum 2-block distance.
         int[][] offsets = {
                 { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 },
                 { 2, 2 }, { -2, 2 }, { 2, -2 }, { -2, -2 },
