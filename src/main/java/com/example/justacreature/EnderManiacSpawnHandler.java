@@ -25,22 +25,22 @@ public class EnderManiacSpawnHandler {
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
-                JustaCreature.WHITE_BALLOON.get(),
-                JustaCreature.RED_BALLOON.get(),
-                JustaCreature.BLUE_BALLOON.get(),
-                JustaCreature.PINK_BALLOON.get(),
-                JustaCreature.GREEN_BALLOON.get(),
-                JustaCreature.YELLOW_BALLOON.get(),
-                JustaCreature.ORANGE_BALLOON.get(),
-                JustaCreature.PURPLE_BALLOON.get(),
-                JustaCreature.BLACK_BALLOON.get(),
-                JustaCreature.GRAY_BALLOON.get(),
-                JustaCreature.BROWN_BALLOON.get(),
-                JustaCreature.LIME_BALLOON.get(),
-                JustaCreature.CYAN_BALLOON.get(),
-                JustaCreature.MAGENTA_BALLOON.get(),
-                JustaCreature.LIGHT_BLUE_BALLOON.get(),
-                JustaCreature.LIGHT_GRAY_BALLOON.get()
+                    JustaCreature.WHITE_BALLOON.get(),
+                    JustaCreature.RED_BALLOON.get(),
+                    JustaCreature.BLUE_BALLOON.get(),
+                    JustaCreature.PINK_BALLOON.get(),
+                    JustaCreature.GREEN_BALLOON.get(),
+                    JustaCreature.YELLOW_BALLOON.get(),
+                    JustaCreature.ORANGE_BALLOON.get(),
+                    JustaCreature.PURPLE_BALLOON.get(),
+                    JustaCreature.BLACK_BALLOON.get(),
+                    JustaCreature.GRAY_BALLOON.get(),
+                    JustaCreature.BROWN_BALLOON.get(),
+                    JustaCreature.LIME_BALLOON.get(),
+                    JustaCreature.CYAN_BALLOON.get(),
+                    JustaCreature.MAGENTA_BALLOON.get(),
+                    JustaCreature.LIGHT_BLUE_BALLOON.get(),
+                    JustaCreature.LIGHT_GRAY_BALLOON.get()
             };
         }
         return BALLOON_BLOCKS;
@@ -48,13 +48,18 @@ public class EnderManiacSpawnHandler {
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
-        if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
-        if (serverLevel.dimension() != Level.END) return;
-        if (!event.isNewChunk()) return;
-        if (!(event.getChunk() instanceof LevelChunk chunk)) return;
+        if (!(event.getLevel() instanceof ServerLevel serverLevel))
+            return;
+        if (serverLevel.dimension() != Level.END)
+            return;
+        if (!event.isNewChunk())
+            return;
+        if (!(event.getChunk() instanceof LevelChunk chunk))
+            return;
 
         // Roll the chance first — cheap exit before scanning
-        if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
+        if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
+            return;
 
         // Collect all chorus plant / flower positions in this chunk
         List<BlockPos> chorusPositions = new ArrayList<>();
@@ -67,7 +72,7 @@ public class EnderManiacSpawnHandler {
                 for (int y = serverLevel.getMinBuildHeight(); y < serverLevel.getMaxBuildHeight(); y++) {
                     mutable.set(x, y, z);
                     Block block = serverLevel.getBlockState(mutable).getBlock();
-                    if (block == Blocks.CHORUS_PLANT || block == Blocks.CHORUS_FLOWER) {
+                    if (block == Blocks.CHORUS_PLANT) {
                         chorusPositions.add(mutable.immutable());
                     }
                 }
@@ -75,15 +80,18 @@ public class EnderManiacSpawnHandler {
         }
 
         // No chorus in this chunk — nothing to do
-        if (chorusPositions.isEmpty()) return;
+        if (chorusPositions.isEmpty())
+            return;
 
         // Pick ONE random chorus position from the list
         BlockPos chorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
 
         // Find a free air spot just below the chorus structure
         BlockPos balloonPos = findPositionBelowChorus(serverLevel, chorusPos);
-        if (balloonPos == null) return;
-        if (!serverLevel.getBlockState(balloonPos).isAir()) return;
+        if (balloonPos == null)
+            return;
+        if (!serverLevel.getBlockState(balloonPos).isAir())
+            return;
 
         // Place a random balloon color
         Block[] balloons = getBalloonBlocks();
@@ -92,10 +100,12 @@ public class EnderManiacSpawnHandler {
 
         // Find ground nearby and spawn exactly ONE EnderManiac
         BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
-        if (spawnPos == null) return;
+        if (spawnPos == null)
+            return;
 
         EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
-        if (mob == null) return;
+        if (mob == null)
+            return;
         mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
                 serverLevel.getRandom().nextFloat() * 360f, 0f);
         mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
