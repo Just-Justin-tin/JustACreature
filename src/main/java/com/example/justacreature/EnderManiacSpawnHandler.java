@@ -10,36 +10,34 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
-    private static final int SPAWN_CHANCE = 5;
+    private static final int SPAWN_CHANCE = 10;
+    // How many random columns to probe before giving up
+    private static final int MAX_PROBES = 12;
 
     private static Block[] BALLOON_BLOCKS = null;
 
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
-                    JustaCreature.WHITE_BALLOON.get(),
-                    JustaCreature.RED_BALLOON.get(),
-                    JustaCreature.BLUE_BALLOON.get(),
-                    JustaCreature.PINK_BALLOON.get(),
-                    JustaCreature.GREEN_BALLOON.get(),
-                    JustaCreature.YELLOW_BALLOON.get(),
-                    JustaCreature.ORANGE_BALLOON.get(),
-                    JustaCreature.PURPLE_BALLOON.get(),
-                    JustaCreature.BLACK_BALLOON.get(),
-                    JustaCreature.GRAY_BALLOON.get(),
-                    JustaCreature.BROWN_BALLOON.get(),
-                    JustaCreature.LIME_BALLOON.get(),
-                    JustaCreature.CYAN_BALLOON.get(),
-                    JustaCreature.MAGENTA_BALLOON.get(),
-                    JustaCreature.LIGHT_BLUE_BALLOON.get(),
-                    JustaCreature.LIGHT_GRAY_BALLOON.get()
+                JustaCreature.WHITE_BALLOON.get(),
+                JustaCreature.RED_BALLOON.get(),
+                JustaCreature.BLUE_BALLOON.get(),
+                JustaCreature.PINK_BALLOON.get(),
+                JustaCreature.GREEN_BALLOON.get(),
+                JustaCreature.YELLOW_BALLOON.get(),
+                JustaCreature.ORANGE_BALLOON.get(),
+                JustaCreature.PURPLE_BALLOON.get(),
+                JustaCreature.BLACK_BALLOON.get(),
+                JustaCreature.GRAY_BALLOON.get(),
+                JustaCreature.BROWN_BALLOON.get(),
+                JustaCreature.LIME_BALLOON.get(),
+                JustaCreature.CYAN_BALLOON.get(),
+                JustaCreature.MAGENTA_BALLOON.get(),
+                JustaCreature.LIGHT_BLUE_BALLOON.get(),
+                JustaCreature.LIGHT_GRAY_BALLOON.get()
             };
         }
         return BALLOON_BLOCKS;
@@ -48,65 +46,51 @@ public class EnderManiacSpawnHandler {
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         try {
-            if (!(event.getLevel() instanceof ServerLevel serverLevel))
-                return;
-            if (serverLevel.dimension() != Level.END)
-                return;
-            if (!event.isNewChunk())
-                return;
-            if (!(event.getChunk() instanceof LevelChunk chunk))
-                return;
+            if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
+            if (serverLevel.dimension() != Level.END) return;
+            if (!event.isNewChunk()) return;
+            if (!(event.getChunk() instanceof LevelChunk chunk)) return;
 
-            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
-                return;
+            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
 
             int chunkX = chunk.getPos().getMinBlockX();
             int chunkZ = chunk.getPos().getMinBlockZ();
             int minY = serverLevel.getMinBuildHeight();
             int maxY = serverLevel.getMaxBuildHeight();
 
-            // Collect all chorus blocks in the chunk that have air directly below them
-            List<BlockPos> validChorusBlocks = new ArrayList<>();
-            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+            // Probe up to MAX_PROBES random columns — cheap, no full scan
+            BlockPos balloonPos = null;
+            for (int probe = 0; probe < MAX_PROBES; probe++) {
+                int rx = chunkX + serverLevel.getRandom().nextInt(16);
+                int rz = chunkZ + serverLevel.getRandom().nextInt(16);
 
-            for (int x = chunkX; x < chunkX + 16; x++) {
-                for (int z = chunkZ; z < chunkZ + 16; z++) {
-                    for (int y = minY + 1; y < maxY; y++) {
-                        mutable.set(x, y, z);
-                        Block b = serverLevel.getBlockState(mutable).getBlock();
-                        if (b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER) {
-                            // Only add if the block directly below is air
-                            if (serverLevel.getBlockState(mutable.below()).isAir()) {
-                                validChorusBlocks.add(mutable.immutable());
-                            }
-                        }
+                // Scan this one column bottom-up for a chorus block with air below it
+                for (int y = minY + 1; y < maxY; y++) {
+                    BlockPos pos = new BlockPos(rx, y, rz);
+                    Block b = serverLevel.getBlockState(pos).getBlock();
+                    if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
+                            && serverLevel.getBlockState(pos.below()).isAir()) {
+                        balloonPos = pos.below();
+                        break;
                     }
                 }
+                if (balloonPos != null) break;
             }
 
-            if (validChorusBlocks.isEmpty())
-                return;
+            // No valid chorus found in any probe — bail
+            if (balloonPos == null) return;
 
-            // Pick ONE random chorus block from the valid list
-            Collections.shuffle(validChorusBlocks, new java.util.Random(serverLevel.getRandom().nextLong()));
-            BlockPos chosenChorus = validChorusBlocks.get(0);
-
-            // Place the balloon in the air block directly below it
-            BlockPos balloonPos = chosenChorus.below();
-
+            // Place balloon
             Block[] balloons = getBalloonBlocks();
             Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
             serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
 
-            // Drop down from near the balloon to find solid ground, then spawn the
-            // EnderManiac
+            // Find ground to spawn on — search in the same column first, then nearby
             BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
-            if (spawnPos == null)
-                return;
+            if (spawnPos == null) return;
 
             EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
-            if (mob == null)
-                return;
+            if (mob == null) return;
             mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
                     serverLevel.getRandom().nextFloat() * 360f, 0f);
             mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
@@ -114,27 +98,35 @@ public class EnderManiacSpawnHandler {
             serverLevel.addFreshEntity(mob);
 
         } catch (Exception e) {
-            JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed on chunk load: {}",
-                    e.getMessage());
+            JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed: {}", e.getMessage());
         }
     }
 
     /**
-     * Picks a random X/Z offset near the balloon, then drops straight down
-     * until it finds an air block with solid ground directly below it.
+     * Searches for solid ground near the balloon.
+     * Tries the balloon's own column first, then several nearby offsets.
+     * The End is mostly void, so we need multiple attempts.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
-        int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
-        int offsetZ = level.getRandom().nextIntBetweenInclusive(-4, 4);
-        BlockPos.MutableBlockPos candidate = balloonPos.offset(offsetX, 0, offsetZ).mutable();
-
         int minY = level.getMinBuildHeight();
-        while (candidate.getY() > minY + 1) {
-            if (level.getBlockState(candidate).isAir()
-                    && !level.getBlockState(candidate.below()).isAir()) {
-                return candidate.immutable();
+
+        // Try the balloon column and 8 nearby offsets
+        int[][] offsets = {
+            {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+            {2, 1}, {-2, 1}, {1, -2}, {-1, 2}
+        };
+
+        for (int[] off : offsets) {
+            BlockPos.MutableBlockPos candidate = balloonPos
+                .offset(off[0], 0, off[1]).mutable();
+
+            while (candidate.getY() > minY + 1) {
+                if (level.getBlockState(candidate).isAir()
+                        && !level.getBlockState(candidate.below()).isAir()) {
+                    return candidate.immutable();
+                }
+                candidate.move(0, -1, 0);
             }
-            candidate.move(0, -1, 0);
         }
         return null;
     }
