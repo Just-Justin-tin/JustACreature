@@ -10,6 +10,10 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
@@ -56,34 +60,39 @@ public class EnderManiacSpawnHandler {
             int minY = serverLevel.getMinBuildHeight();
             int maxY = serverLevel.getMaxBuildHeight();
 
-            // Pick a random X/Z inside this chunk and scan that ONE column for chorus
-            int rx = chunkX + serverLevel.getRandom().nextInt(16);
-            int rz = chunkZ + serverLevel.getRandom().nextInt(16);
+            // Collect all chorus blocks in the chunk that have air directly below them
+            List<BlockPos> validChorusBlocks = new ArrayList<>();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
-            // Find the LOWEST chorus block in this column
-            BlockPos lowestChorus = null;
-            for (int y = minY; y < maxY; y++) {
-                BlockPos pos = new BlockPos(rx, y, rz);
-                Block b = serverLevel.getBlockState(pos).getBlock();
-                if (b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER) {
-                    lowestChorus = pos; // keep overwriting — last one found scanning upward is lowest
-                    break; // scanning bottom-up so first hit IS the lowest
+            for (int x = chunkX; x < chunkX + 16; x++) {
+                for (int z = chunkZ; z < chunkZ + 16; z++) {
+                    for (int y = minY + 1; y < maxY; y++) {
+                        mutable.set(x, y, z);
+                        Block b = serverLevel.getBlockState(mutable).getBlock();
+                        if (b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER) {
+                            // Only add if the block directly below is air
+                            if (serverLevel.getBlockState(mutable.below()).isAir()) {
+                                validChorusBlocks.add(mutable.immutable());
+                            }
+                        }
+                    }
                 }
             }
 
-            // No chorus in this column — bail out cheaply
-            if (lowestChorus == null) return;
+            if (validChorusBlocks.isEmpty()) return;
 
-            // Place balloon ONE block BELOW the lowest chorus block
-            BlockPos balloonPos = lowestChorus.below();
-            if (balloonPos.getY() < minY) return;
-            if (!serverLevel.getBlockState(balloonPos).isAir()) return;
+            // Pick ONE random chorus block from the valid list
+            Collections.shuffle(validChorusBlocks, new java.util.Random(serverLevel.getRandom().nextLong()));
+            BlockPos chosenChorus = validChorusBlocks.get(0);
+
+            // Place the balloon in the air block directly below it
+            BlockPos balloonPos = chosenChorus.below();
 
             Block[] balloons = getBalloonBlocks();
             Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
             serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
 
-            // Pick a random spot near the balloon and drop down to ground to spawn the mob
+            // Drop down from near the balloon to find solid ground, then spawn the EnderManiac
             BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
             if (spawnPos == null) return;
 
@@ -102,7 +111,7 @@ public class EnderManiacSpawnHandler {
 
     /**
      * Picks a random X/Z offset near the balloon, then drops straight down
-     * until it finds a block that is air with solid ground directly below it.
+     * until it finds an air block with solid ground directly below it.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
