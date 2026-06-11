@@ -14,11 +14,11 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-public class EnderManiac<T extends Entity> extends EntityModel<T> {
+public class EnderManiacModel<T extends Entity> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in
 	// the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-			ResourceLocation.fromNamespaceAndPath("justacreature", "endermaniac"), "main");
+			ResourceLocation.fromNamespaceAndPath("justacreature", "endermaniacmodel"), "main");
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart right_arm;
@@ -50,7 +50,7 @@ public class EnderManiac<T extends Entity> extends EntityModel<T> {
 	private final ModelPart right_arm_small;
 	private final ModelPart left_arm_small3;
 
-	public EnderManiac(ModelPart root) {
+	public EnderManiacModel(ModelPart root) {
 		this.body = root.getChild("body");
 		this.head = root.getChild("head");
 		this.right_arm = root.getChild("right_arm");
