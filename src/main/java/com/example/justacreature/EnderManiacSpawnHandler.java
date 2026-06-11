@@ -16,6 +16,13 @@ public class EnderManiacSpawnHandler {
     private static final int SPAWN_CHANCE = 10;
     private static final int MAX_PROBES = 12;
 
+    // Place the balloon block with zero side effects on neighbors:
+    //   UPDATE_CLIENTS      (2)  - syncs the new block to clients so it renders
+    //   UPDATE_KNOWN_SHAPE  (16) - skips updating neighbor shapes (stops chorus re-checking support)
+    //   UPDATE_INVISIBLE    (32) - suppresses re-render propagation to surrounding blocks
+    // Together as 2|16|32 = 50, no neighbor is ever notified, so chorus plants never collapse.
+    private static final int SILENT_PLACE_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_INVISIBLE;
+
     private static Block[] BALLOON_BLOCKS = null;
 
     private static Block[] getBalloonBlocks() {
@@ -89,8 +96,7 @@ public class EnderManiacSpawnHandler {
 
         Block[] balloons = getBalloonBlocks();
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
-        // UPDATE_CLIENTS only — does NOT notify neighboring blocks, so chorus plants won't collapse
-        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_CLIENTS);
+        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
 
         BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
         if (spawnPos == null) return;
