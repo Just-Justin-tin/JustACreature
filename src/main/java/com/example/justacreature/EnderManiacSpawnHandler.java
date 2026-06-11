@@ -1,7 +1,6 @@
 package com.example.justacreature;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -17,7 +16,9 @@ import java.util.List;
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
-    // All 16 balloon block variants to pick from randomly
+    // 10% chance per newly generated End chunk that has chorus plants/flowers
+    private static final int SPAWN_CHANCE = 10;
+
     private static final Block[] BALLOON_BLOCKS = {
             JustaCreature.WHITE_BALLOON.get(),
             JustaCreature.RED_BALLOON.get(),
@@ -39,20 +40,16 @@ public class EnderManiacSpawnHandler {
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
-        // Only run on server side in The End
-        if (!(event.getLevel() instanceof ServerLevel serverLevel))
-            return;
-        if (serverLevel.dimension() != Level.END)
-            return;
-        // Only process newly generated chunks, not every load
-        if (!event.isNewChunk())
-            return;
-        if (!(event.getChunk() instanceof LevelChunk chunk))
-            return;
+        if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
+        if (serverLevel.dimension() != Level.END) return;
+        if (!event.isNewChunk()) return;
+        if (!(event.getChunk() instanceof LevelChunk chunk)) return;
 
+        // Roll the chance first — cheap exit before scanning
+        if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
+
+        // Collect all chorus plant / flower positions in this chunk
         List<BlockPos> chorusPositions = new ArrayList<>();
-
-        // Scan the chunk for chorus plants and chorus flowers
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         int chunkX = chunk.getPos().getMinBlockX();
         int chunkZ = chunk.getPos().getMinBlockZ();
@@ -69,56 +66,43 @@ public class EnderManiacSpawnHandler {
             }
         }
 
-        if (chorusPositions.isEmpty())
-            return;
+        // No chorus in this chunk — nothing to do
+        if (chorusPositions.isEmpty()) return;
 
+        // Pick ONE random chorus position from the list
         BlockPos chorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
 
-        if (serverLevel.getRandom().nextInt(chorusPositions.size()) == 1) {
+        // Find a free air spot just below the chorus structure
+        BlockPos balloonPos = findPositionBelowChorus(serverLevel, chorusPos);
+        if (balloonPos == null) return;
+        if (!serverLevel.getBlockState(balloonPos).isAir()) return;
 
-            // Find the block directly below the chorus plant/flower
-            BlockPos balloonPos = findPositionBelowChorus(serverLevel, chorusPos);
-            if (balloonPos == null)
-                return;
+        // Place a random balloon color
+        Block randomBalloon = BALLOON_BLOCKS[serverLevel.getRandom().nextInt(BALLOON_BLOCKS.length)];
+        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
 
-            // Only place if the spot is air
-            if (!serverLevel.getBlockState(balloonPos).isAir())
-                return;
+        // Find ground nearby and spawn exactly ONE EnderManiac
+        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
+        if (spawnPos == null) return;
 
-            // Pick a random balloon color
-            Block randomBalloon = BALLOON_BLOCKS[serverLevel.getRandom().nextInt(BALLOON_BLOCKS.length)];
-            serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
-
-            // Find ground level near the balloon to spawn the EnderManiac
-            BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
-            if (spawnPos == null)
-                return;
-
-            // Spawn the EnderManiac
-            EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
-            if (mob == null)
-                return;
-            mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
-                    serverLevel.getRandom().nextFloat() * 360f, 0f);
-            mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
-                    net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
-            serverLevel.addFreshEntity(mob);
-        }
+        EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
+        if (mob == null) return;
+        mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
+                serverLevel.getRandom().nextFloat() * 360f, 0f);
+        mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
+                net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
+        serverLevel.addFreshEntity(mob);
     }
 
     /**
-     * Walks downward from the chorus pos to find the first air block below it
-     * that has a solid block beneath it (so the balloon floats just under the
-     * plant).
+     * Walks downward from the chorus pos to find the first air block sitting
+     * directly above solid ground (so the balloon appears just under the plant).
      */
     private static BlockPos findPositionBelowChorus(ServerLevel level, BlockPos chorusPos) {
-        // Walk down from the chorus block until we find air sitting on a solid block
         BlockPos current = chorusPos.below();
         for (int i = 0; i < 20; i++) {
             if (level.getBlockState(current).isAir()) {
-                BlockPos below = current.below();
-                // If there's solid ground below this air, place the balloon here
-                if (!level.getBlockState(below).isAir()) {
+                if (!level.getBlockState(current.below()).isAir()) {
                     return current;
                 }
             }
@@ -128,19 +112,17 @@ public class EnderManiacSpawnHandler {
     }
 
     /**
-     * Finds a solid ground position within a few blocks of the balloon,
-     * offset randomly so the EnderManiac spawns near (not on) the balloon.
+     * Finds a solid ground position within ±4 blocks of the balloon,
+     * so the EnderManiac spawns nearby on the ground rather than on the balloon.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
         int offsetZ = level.getRandom().nextIntBetweenInclusive(-4, 4);
         BlockPos searchStart = balloonPos.offset(offsetX, 0, offsetZ);
 
-        // Scan downward to find the ground
         for (int dy = 0; dy > -30; dy--) {
             BlockPos candidate = searchStart.offset(0, dy, 0);
-            BlockPos below = candidate.below();
-            if (level.getBlockState(candidate).isAir() && !level.getBlockState(below).isAir()) {
+            if (level.getBlockState(candidate).isAir() && !level.getBlockState(candidate.below()).isAir()) {
                 return candidate;
             }
         }
