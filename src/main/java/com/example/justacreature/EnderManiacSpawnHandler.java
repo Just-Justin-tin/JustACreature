@@ -23,22 +23,22 @@ public class EnderManiacSpawnHandler {
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
-                    JustaCreature.WHITE_BALLOON.get(),
-                    JustaCreature.RED_BALLOON.get(),
-                    JustaCreature.BLUE_BALLOON.get(),
-                    JustaCreature.PINK_BALLOON.get(),
-                    JustaCreature.GREEN_BALLOON.get(),
-                    JustaCreature.YELLOW_BALLOON.get(),
-                    JustaCreature.ORANGE_BALLOON.get(),
-                    JustaCreature.PURPLE_BALLOON.get(),
-                    JustaCreature.BLACK_BALLOON.get(),
-                    JustaCreature.GRAY_BALLOON.get(),
-                    JustaCreature.BROWN_BALLOON.get(),
-                    JustaCreature.LIME_BALLOON.get(),
-                    JustaCreature.CYAN_BALLOON.get(),
-                    JustaCreature.MAGENTA_BALLOON.get(),
-                    JustaCreature.LIGHT_BLUE_BALLOON.get(),
-                    JustaCreature.LIGHT_GRAY_BALLOON.get()
+                JustaCreature.WHITE_BALLOON.get(),
+                JustaCreature.RED_BALLOON.get(),
+                JustaCreature.BLUE_BALLOON.get(),
+                JustaCreature.PINK_BALLOON.get(),
+                JustaCreature.GREEN_BALLOON.get(),
+                JustaCreature.YELLOW_BALLOON.get(),
+                JustaCreature.ORANGE_BALLOON.get(),
+                JustaCreature.PURPLE_BALLOON.get(),
+                JustaCreature.BLACK_BALLOON.get(),
+                JustaCreature.GRAY_BALLOON.get(),
+                JustaCreature.BROWN_BALLOON.get(),
+                JustaCreature.LIME_BALLOON.get(),
+                JustaCreature.CYAN_BALLOON.get(),
+                JustaCreature.MAGENTA_BALLOON.get(),
+                JustaCreature.LIGHT_BLUE_BALLOON.get(),
+                JustaCreature.LIGHT_GRAY_BALLOON.get()
             };
         }
         return BALLOON_BLOCKS;
@@ -46,80 +46,72 @@ public class EnderManiacSpawnHandler {
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
-        if (!(event.getLevel() instanceof ServerLevel serverLevel))
-            return;
-        if (serverLevel.dimension() != Level.END)
-            return;
-        if (!event.isNewChunk())
-            return;
-        if (!(event.getChunk() instanceof LevelChunk chunk))
-            return;
+        // Wrap everything in try/catch so a bad chunk can NEVER hang the save thread
+        try {
+            if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
+            if (serverLevel.dimension() != Level.END) return;
+            if (!event.isNewChunk()) return;
+            if (!(event.getChunk() instanceof LevelChunk chunk)) return;
 
-        if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
-            return;
+            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
 
-        // Collect all chorus plant / flower positions in this chunk
-        List<BlockPos> chorusPositions = new ArrayList<>();
-        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
-        int chunkX = chunk.getPos().getMinBlockX();
-        int chunkZ = chunk.getPos().getMinBlockZ();
+            List<BlockPos> chorusPositions = new ArrayList<>();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+            int chunkX = chunk.getPos().getMinBlockX();
+            int chunkZ = chunk.getPos().getMinBlockZ();
 
-        for (int x = chunkX; x < chunkX + 16; x++) {
-            for (int z = chunkZ; z < chunkZ + 16; z++) {
-                for (int y = serverLevel.getMinBuildHeight(); y < serverLevel.getMaxBuildHeight(); y++) {
-                    mutable.set(x, y, z);
-                    Block block = serverLevel.getBlockState(mutable).getBlock();
-                    if (block == Blocks.CHORUS_PLANT) {
-                        chorusPositions.add(mutable.immutable());
+            for (int x = chunkX; x < chunkX + 16; x++) {
+                for (int z = chunkZ; z < chunkZ + 16; z++) {
+                    for (int y = serverLevel.getMinBuildHeight(); y < serverLevel.getMaxBuildHeight(); y++) {
+                        mutable.set(x, y, z);
+                        Block block = serverLevel.getBlockState(mutable).getBlock();
+                        if (block == Blocks.CHORUS_PLANT || block == Blocks.CHORUS_FLOWER) {
+                            chorusPositions.add(mutable.immutable());
+                        }
                     }
                 }
             }
+
+            if (chorusPositions.isEmpty()) return;
+
+            BlockPos anyChorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
+
+            BlockPos balloonPos = findBlockBelowLowestChorus(serverLevel, anyChorusPos);
+            if (balloonPos == null) return;
+            if (!serverLevel.getBlockState(balloonPos).isAir()) return;
+
+            Block[] balloons = getBalloonBlocks();
+            Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
+            serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
+
+            BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
+            if (spawnPos == null) return;
+
+            EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
+            if (mob == null) return;
+            mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
+                    serverLevel.getRandom().nextFloat() * 360f, 0f);
+            mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
+                    net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
+            serverLevel.addFreshEntity(mob);
+
+        } catch (Exception e) {
+            // Log but never rethrow — a broken spawn must never block chunk loading or world saving
+            JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed on chunk load: {}", e.getMessage());
         }
-
-        if (chorusPositions.isEmpty())
-            return;
-
-        // Pick a random chorus block anywhere in the structure
-        BlockPos anyChorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
-
-        // Walk DOWN the same X/Z column to find the LOWEST chorus block in this stem
-        BlockPos balloonPos = findBlockBelowLowestChorus(serverLevel, anyChorusPos);
-        if (balloonPos == null)
-            return;
-        if (!serverLevel.getBlockState(balloonPos).isAir())
-            return;
-
-        // Place a random balloon directly under the base of the chorus plant
-        Block[] balloons = getBalloonBlocks();
-        Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
-        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
-
-        // Find ground nearby and spawn exactly ONE EnderManiac
-        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
-        if (spawnPos == null)
-            return;
-
-        EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
-        if (mob == null)
-            return;
-        mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
-                serverLevel.getRandom().nextFloat() * 360f, 0f);
-        mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
-                net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
-        serverLevel.addFreshEntity(mob);
     }
 
     /**
-     * Starting from any block in a chorus structure, walks down the same X/Z column
-     * to find the LOWEST chorus block. Returns the air block directly below that —
-     * i.e., the spot right under the base of the plant.
-     * Returns null if no valid air block is found.
+     * Walks DOWN the same X/Z column from any chorus block to find the lowest
+     * chorus block in the structure. Returns the air block directly below it.
+     * Has a floor guard to prevent walking out of world bounds.
      */
     private static BlockPos findBlockBelowLowestChorus(ServerLevel level, BlockPos anyChorusPos) {
         BlockPos.MutableBlockPos current = anyChorusPos.mutable();
+        int minY = level.getMinBuildHeight();
 
-        // Walk down until the block below is no longer a chorus block
-        while (true) {
+        // Walk down while the block below is still chorus AND we haven't hit the world floor
+        while (current.getY() > minY + 1) {
             Block below = level.getBlockState(current.below()).getBlock();
             if (below == Blocks.CHORUS_PLANT || below == Blocks.CHORUS_FLOWER) {
                 current.move(0, -1, 0);
@@ -128,8 +120,9 @@ public class EnderManiacSpawnHandler {
             }
         }
 
-        // current is now the lowest chorus block; the block below it is the target
+        // current is now the lowest chorus block; return the block directly below it
         BlockPos target = current.below().immutable();
+        if (target.getY() < minY) return null;
         return level.getBlockState(target).isAir() ? target : null;
     }
 
@@ -137,12 +130,13 @@ public class EnderManiacSpawnHandler {
      * Finds a solid ground position within ±4 blocks of the balloon.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
-        int offsetX = level.getRandom().nextIntBetweenInclusive(-16, 16);
-        int offsetZ = level.getRandom().nextIntBetweenInclusive(-16, 16);
+        int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
+        int offsetZ = level.getRandom().nextIntBetweenInclusive(-4, 4);
         BlockPos searchStart = balloonPos.offset(offsetX, 0, offsetZ);
 
         for (int dy = 0; dy > -30; dy--) {
             BlockPos candidate = searchStart.offset(0, dy, 0);
+            if (candidate.getY() < level.getMinBuildHeight()) break;
             if (level.getBlockState(candidate).isAir() && !level.getBlockState(candidate.below()).isAir()) {
                 return candidate;
             }
