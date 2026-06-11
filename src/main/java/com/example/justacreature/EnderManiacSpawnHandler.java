@@ -14,8 +14,7 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 public class EnderManiacSpawnHandler {
 
     private static final int SPAWN_CHANCE = 10;
-    // How many random columns to probe before giving up
-    private static final int MAX_PROBES = 12;
+    private static final int MAX_PROBES = 8;
 
     private static Block[] BALLOON_BLOCKS = null;
 
@@ -45,81 +44,83 @@ public class EnderManiacSpawnHandler {
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
-        try {
-            if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
-            if (serverLevel.dimension() != Level.END) return;
-            if (!event.isNewChunk()) return;
-            if (!(event.getChunk() instanceof LevelChunk chunk)) return;
+        // Only act on brand-new End chunks
+        if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
+        if (serverLevel.dimension() != Level.END) return;
+        if (!event.isNewChunk()) return;
+        if (!(event.getChunk() instanceof LevelChunk chunk)) return;
+        if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
 
-            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
+        int chunkX = chunk.getPos().getMinBlockX();
+        int chunkZ = chunk.getPos().getMinBlockZ();
 
-            int chunkX = chunk.getPos().getMinBlockX();
-            int chunkZ = chunk.getPos().getMinBlockZ();
-            int minY = serverLevel.getMinBuildHeight();
-            int maxY = serverLevel.getMaxBuildHeight();
+        // Capture values for the scheduled task
+        final int capturedChunkX = chunkX;
+        final int capturedChunkZ = chunkZ;
 
-            // Probe up to MAX_PROBES random columns — cheap, no full scan
-            BlockPos balloonPos = null;
-            for (int probe = 0; probe < MAX_PROBES; probe++) {
-                int rx = chunkX + serverLevel.getRandom().nextInt(16);
-                int rz = chunkZ + serverLevel.getRandom().nextInt(16);
-
-                // Scan this one column bottom-up for a chorus block with air below it
-                for (int y = minY + 1; y < maxY; y++) {
-                    BlockPos pos = new BlockPos(rx, y, rz);
-                    Block b = serverLevel.getBlockState(pos).getBlock();
-                    if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
-                            && serverLevel.getBlockState(pos.below()).isAir()) {
-                        balloonPos = pos.below();
-                        break;
-                    }
-                }
-                if (balloonPos != null) break;
+        // Schedule the actual work for the NEXT server tick so it never runs
+        // during chunk loading — this is what prevents the save-world hang.
+        serverLevel.getServer().execute(() -> {
+            try {
+                doSpawn(serverLevel, capturedChunkX, capturedChunkZ);
+            } catch (Exception e) {
+                JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed: {}", e.getMessage());
             }
-
-            // No valid chorus found in any probe — bail
-            if (balloonPos == null) return;
-
-            // Place balloon
-            Block[] balloons = getBalloonBlocks();
-            Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
-            serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
-
-            // Find ground to spawn on — search in the same column first, then nearby
-            BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
-            if (spawnPos == null) return;
-
-            EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
-            if (mob == null) return;
-            mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
-                    serverLevel.getRandom().nextFloat() * 360f, 0f);
-            mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
-                    net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
-            serverLevel.addFreshEntity(mob);
-
-        } catch (Exception e) {
-            JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed: {}", e.getMessage());
-        }
+        });
     }
 
-    /**
-     * Searches for solid ground near the balloon.
-     * Tries the balloon's own column first, then several nearby offsets.
-     * The End is mostly void, so we need multiple attempts.
-     */
+    private static void doSpawn(ServerLevel serverLevel, int chunkX, int chunkZ) {
+        int minY = serverLevel.getMinBuildHeight();
+        int maxY = serverLevel.getMaxBuildHeight();
+
+        // Probe up to MAX_PROBES random columns for a chorus block with air below it
+        BlockPos balloonPos = null;
+        for (int probe = 0; probe < MAX_PROBES; probe++) {
+            int rx = chunkX + serverLevel.getRandom().nextInt(16);
+            int rz = chunkZ + serverLevel.getRandom().nextInt(16);
+
+            for (int y = minY + 1; y < maxY; y++) {
+                BlockPos pos = new BlockPos(rx, y, rz);
+                Block b = serverLevel.getBlockState(pos).getBlock();
+                if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
+                        && serverLevel.getBlockState(pos.below()).isAir()) {
+                    balloonPos = pos.below();
+                    break;
+                }
+            }
+            if (balloonPos != null) break;
+        }
+
+        if (balloonPos == null) return;
+
+        // Use UPDATE_CLIENTS only — does NOT trigger neighbor block updates,
+        // so chorus plants won't check support and collapse.
+        Block[] balloons = getBalloonBlocks();
+        Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
+        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_CLIENTS);
+
+        // Find ground nearby and spawn the EnderManiac
+        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
+        if (spawnPos == null) return;
+
+        EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
+        if (mob == null) return;
+        mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
+                serverLevel.getRandom().nextFloat() * 360f, 0f);
+        mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
+                net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
+        serverLevel.addFreshEntity(mob);
+    }
+
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int minY = level.getMinBuildHeight();
-
-        // Try the balloon column and 8 nearby offsets
         int[][] offsets = {
             {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1},
             {2, 1}, {-2, 1}, {1, -2}, {-1, 2}
         };
 
         for (int[] off : offsets) {
-            BlockPos.MutableBlockPos candidate = balloonPos
-                .offset(off[0], 0, off[1]).mutable();
-
+            BlockPos.MutableBlockPos candidate = balloonPos.offset(off[0], 0, off[1]).mutable();
             while (candidate.getY() > minY + 1) {
                 if (level.getBlockState(candidate).isAir()
                         && !level.getBlockState(candidate.below()).isAir()) {
