@@ -10,9 +10,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
@@ -46,7 +43,6 @@ public class EnderManiacSpawnHandler {
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
-        // Wrap everything in try/catch so a bad chunk can NEVER hang the save thread
         try {
             if (!(event.getLevel() instanceof ServerLevel serverLevel)) return;
             if (serverLevel.dimension() != Level.END) return;
@@ -55,35 +51,39 @@ public class EnderManiacSpawnHandler {
 
             if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE) return;
 
-            List<BlockPos> chorusPositions = new ArrayList<>();
-            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
             int chunkX = chunk.getPos().getMinBlockX();
             int chunkZ = chunk.getPos().getMinBlockZ();
+            int minY = serverLevel.getMinBuildHeight();
+            int maxY = serverLevel.getMaxBuildHeight();
 
-            for (int x = chunkX; x < chunkX + 16; x++) {
-                for (int z = chunkZ; z < chunkZ + 16; z++) {
-                    for (int y = serverLevel.getMinBuildHeight(); y < serverLevel.getMaxBuildHeight(); y++) {
-                        mutable.set(x, y, z);
-                        Block block = serverLevel.getBlockState(mutable).getBlock();
-                        if (block == Blocks.CHORUS_PLANT || block == Blocks.CHORUS_FLOWER) {
-                            chorusPositions.add(mutable.immutable());
-                        }
-                    }
+            // Pick a random X/Z inside this chunk and scan that ONE column for chorus
+            int rx = chunkX + serverLevel.getRandom().nextInt(16);
+            int rz = chunkZ + serverLevel.getRandom().nextInt(16);
+
+            // Find the LOWEST chorus block in this column
+            BlockPos lowestChorus = null;
+            for (int y = minY; y < maxY; y++) {
+                BlockPos pos = new BlockPos(rx, y, rz);
+                Block b = serverLevel.getBlockState(pos).getBlock();
+                if (b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER) {
+                    lowestChorus = pos; // keep overwriting — last one found scanning upward is lowest
+                    break; // scanning bottom-up so first hit IS the lowest
                 }
             }
 
-            if (chorusPositions.isEmpty()) return;
+            // No chorus in this column — bail out cheaply
+            if (lowestChorus == null) return;
 
-            BlockPos anyChorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
-
-            BlockPos balloonPos = findBlockBelowLowestChorus(serverLevel, anyChorusPos);
-            if (balloonPos == null) return;
+            // Place balloon ONE block BELOW the lowest chorus block
+            BlockPos balloonPos = lowestChorus.below();
+            if (balloonPos.getY() < minY) return;
             if (!serverLevel.getBlockState(balloonPos).isAir()) return;
 
             Block[] balloons = getBalloonBlocks();
             Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
             serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
 
+            // Pick a random spot near the balloon and drop down to ground to spawn the mob
             BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
             if (spawnPos == null) return;
 
@@ -96,50 +96,26 @@ public class EnderManiacSpawnHandler {
             serverLevel.addFreshEntity(mob);
 
         } catch (Exception e) {
-            // Log but never rethrow — a broken spawn must never block chunk loading or world saving
             JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed on chunk load: {}", e.getMessage());
         }
     }
 
     /**
-     * Walks DOWN the same X/Z column from any chorus block to find the lowest
-     * chorus block in the structure. Returns the air block directly below it.
-     * Has a floor guard to prevent walking out of world bounds.
-     */
-    private static BlockPos findBlockBelowLowestChorus(ServerLevel level, BlockPos anyChorusPos) {
-        BlockPos.MutableBlockPos current = anyChorusPos.mutable();
-        int minY = level.getMinBuildHeight();
-
-        // Walk down while the block below is still chorus AND we haven't hit the world floor
-        while (current.getY() > minY + 1) {
-            Block below = level.getBlockState(current.below()).getBlock();
-            if (below == Blocks.CHORUS_PLANT || below == Blocks.CHORUS_FLOWER) {
-                current.move(0, -1, 0);
-            } else {
-                break;
-            }
-        }
-
-        // current is now the lowest chorus block; return the block directly below it
-        BlockPos target = current.below().immutable();
-        if (target.getY() < minY) return null;
-        return level.getBlockState(target).isAir() ? target : null;
-    }
-
-    /**
-     * Finds a solid ground position within ±4 blocks of the balloon.
+     * Picks a random X/Z offset near the balloon, then drops straight down
+     * until it finds a block that is air with solid ground directly below it.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
         int offsetZ = level.getRandom().nextIntBetweenInclusive(-4, 4);
-        BlockPos searchStart = balloonPos.offset(offsetX, 0, offsetZ);
+        BlockPos.MutableBlockPos candidate = balloonPos.offset(offsetX, 0, offsetZ).mutable();
 
-        for (int dy = 0; dy > -30; dy--) {
-            BlockPos candidate = searchStart.offset(0, dy, 0);
-            if (candidate.getY() < level.getMinBuildHeight()) break;
-            if (level.getBlockState(candidate).isAir() && !level.getBlockState(candidate.below()).isAir()) {
-                return candidate;
+        int minY = level.getMinBuildHeight();
+        while (candidate.getY() > minY + 1) {
+            if (level.getBlockState(candidate).isAir()
+                    && !level.getBlockState(candidate.below()).isAir()) {
+                return candidate.immutable();
             }
+            candidate.move(0, -1, 0);
         }
         return null;
     }
