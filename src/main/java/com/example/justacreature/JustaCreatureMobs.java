@@ -114,6 +114,13 @@ public class JustaCreatureMobs {
                                                         .updateInterval(10)
                                                         .build("pin_projectile"));
 
+        public static final DeferredHolder<EntityType<?>, EntityType<EnderManiac>> ENDERMANIAC = ENTITY_TYPES
+                        .register("endermanic",
+                                        () -> EntityType.Builder.of(EnderManiac::new, MobCategory.MONSTER)
+                                                        .sized(0.6F, 1.8F)
+                                                        .clientTrackingRange(40)
+                                                        .build("endermanic"));
+
         public static final DeferredHolder<Item, Item> BOSAMBO_SPAWN_EGG = ITEMS.register("creature_bosambo_spawn_egg",
                         () -> new DeferredSpawnEggItem(CREATURE_BOSAMBO, 0x8A3A35, 0x219C4A, new Item.Properties()));
 
@@ -179,6 +186,9 @@ public class JustaCreatureMobs {
                                 .build());
 
                 event.put(BOUNCY_BALL.get(), Monster.createMonsterAttributes()
+                                .build());
+
+                event.put(ENDERMANIAC.get(), Monster.createMonsterAttributes()
                                 .build());
         }
 
