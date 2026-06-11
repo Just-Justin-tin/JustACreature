@@ -16,10 +16,8 @@ import java.util.List;
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
-    // 10% chance per newly generated End chunk that has chorus plants/flowers
     private static final int SPAWN_CHANCE = 10;
 
-    // Lazily initialized — populated on first use, after registries are ready
     private static Block[] BALLOON_BLOCKS = null;
 
     private static Block[] getBalloonBlocks() {
@@ -57,7 +55,6 @@ public class EnderManiacSpawnHandler {
         if (!(event.getChunk() instanceof LevelChunk chunk))
             return;
 
-        // Roll the chance first — cheap exit before scanning
         if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
             return;
 
@@ -79,21 +76,20 @@ public class EnderManiacSpawnHandler {
             }
         }
 
-        // No chorus in this chunk — nothing to do
         if (chorusPositions.isEmpty())
             return;
 
-        // Pick ONE random chorus position from the list
-        BlockPos chorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
+        // Pick a random chorus block anywhere in the structure
+        BlockPos anyChorusPos = chorusPositions.get(serverLevel.getRandom().nextInt(chorusPositions.size()));
 
-        // Find a free air spot just below the chorus structure
-        BlockPos balloonPos = findPositionBelowChorus(serverLevel, chorusPos);
+        // Walk DOWN the same X/Z column to find the LOWEST chorus block in this stem
+        BlockPos balloonPos = findBlockBelowLowestChorus(serverLevel, anyChorusPos);
         if (balloonPos == null)
             return;
         if (!serverLevel.getBlockState(balloonPos).isAir())
             return;
 
-        // Place a random balloon color
+        // Place a random balloon directly under the base of the chorus plant
         Block[] balloons = getBalloonBlocks();
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
         serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
@@ -114,25 +110,31 @@ public class EnderManiacSpawnHandler {
     }
 
     /**
-     * Walks downward from the chorus pos to find the first air block sitting
-     * directly above solid ground (so the balloon appears just under the plant).
+     * Starting from any block in a chorus structure, walks down the same X/Z column
+     * to find the LOWEST chorus block. Returns the air block directly below that —
+     * i.e., the spot right under the base of the plant.
+     * Returns null if no valid air block is found.
      */
-    private static BlockPos findPositionBelowChorus(ServerLevel level, BlockPos chorusPos) {
-        BlockPos current = chorusPos.below();
-        for (int i = 0; i < 20; i++) {
-            if (level.getBlockState(current).isAir()) {
-                if (!level.getBlockState(current.below()).isAir()) {
-                    return current;
-                }
+    private static BlockPos findBlockBelowLowestChorus(ServerLevel level, BlockPos anyChorusPos) {
+        BlockPos.MutableBlockPos current = anyChorusPos.mutable();
+
+        // Walk down until the block below is no longer a chorus block
+        while (true) {
+            Block below = level.getBlockState(current.below()).getBlock();
+            if (below == Blocks.CHORUS_PLANT || below == Blocks.CHORUS_FLOWER) {
+                current.move(0, -1, 0);
+            } else {
+                break;
             }
-            current = current.below();
         }
-        return null;
+
+        // current is now the lowest chorus block; the block below it is the target
+        BlockPos target = current.below().immutable();
+        return level.getBlockState(target).isAir() ? target : null;
     }
 
     /**
-     * Finds a solid ground position within ±4 blocks of the balloon,
-     * so the EnderManiac spawns nearby on the ground rather than on the balloon.
+     * Finds a solid ground position within ±4 blocks of the balloon.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
