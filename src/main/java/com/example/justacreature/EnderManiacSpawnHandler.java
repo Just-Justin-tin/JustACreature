@@ -137,8 +137,8 @@ public class EnderManiacSpawnHandler {
      * Finds a solid ground position within ±4 blocks of the balloon.
      */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
-        int offsetX = level.getRandom().nextIntBetweenInclusive(-16, 16);
-        int offsetZ = level.getRandom().nextIntBetweenInclusive(-16, 16);
+        int offsetX = level.getRandom().nextIntBetweenInclusive(-4, 4);
+        int offsetZ = level.getRandom().nextIntBetweenInclusive(-4, 4);
         BlockPos searchStart = balloonPos.offset(offsetX, 0, offsetZ);
 
         for (int dy = 0; dy > -30; dy--) {
