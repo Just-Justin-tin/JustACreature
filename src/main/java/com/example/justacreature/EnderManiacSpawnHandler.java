@@ -19,24 +19,32 @@ public class EnderManiacSpawnHandler {
     // 10% chance per newly generated End chunk that has chorus plants/flowers
     private static final int SPAWN_CHANCE = 10;
 
-    private static final Block[] BALLOON_BLOCKS = {
-            JustaCreature.WHITE_BALLOON.get(),
-            JustaCreature.RED_BALLOON.get(),
-            JustaCreature.BLUE_BALLOON.get(),
-            JustaCreature.PINK_BALLOON.get(),
-            JustaCreature.GREEN_BALLOON.get(),
-            JustaCreature.YELLOW_BALLOON.get(),
-            JustaCreature.ORANGE_BALLOON.get(),
-            JustaCreature.PURPLE_BALLOON.get(),
-            JustaCreature.BLACK_BALLOON.get(),
-            JustaCreature.GRAY_BALLOON.get(),
-            JustaCreature.BROWN_BALLOON.get(),
-            JustaCreature.LIME_BALLOON.get(),
-            JustaCreature.CYAN_BALLOON.get(),
-            JustaCreature.MAGENTA_BALLOON.get(),
-            JustaCreature.LIGHT_BLUE_BALLOON.get(),
-            JustaCreature.LIGHT_GRAY_BALLOON.get()
-    };
+    // Lazily initialized — populated on first use, after registries are ready
+    private static Block[] BALLOON_BLOCKS = null;
+
+    private static Block[] getBalloonBlocks() {
+        if (BALLOON_BLOCKS == null) {
+            BALLOON_BLOCKS = new Block[] {
+                JustaCreature.WHITE_BALLOON.get(),
+                JustaCreature.RED_BALLOON.get(),
+                JustaCreature.BLUE_BALLOON.get(),
+                JustaCreature.PINK_BALLOON.get(),
+                JustaCreature.GREEN_BALLOON.get(),
+                JustaCreature.YELLOW_BALLOON.get(),
+                JustaCreature.ORANGE_BALLOON.get(),
+                JustaCreature.PURPLE_BALLOON.get(),
+                JustaCreature.BLACK_BALLOON.get(),
+                JustaCreature.GRAY_BALLOON.get(),
+                JustaCreature.BROWN_BALLOON.get(),
+                JustaCreature.LIME_BALLOON.get(),
+                JustaCreature.CYAN_BALLOON.get(),
+                JustaCreature.MAGENTA_BALLOON.get(),
+                JustaCreature.LIGHT_BLUE_BALLOON.get(),
+                JustaCreature.LIGHT_GRAY_BALLOON.get()
+            };
+        }
+        return BALLOON_BLOCKS;
+    }
 
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
@@ -78,7 +86,8 @@ public class EnderManiacSpawnHandler {
         if (!serverLevel.getBlockState(balloonPos).isAir()) return;
 
         // Place a random balloon color
-        Block randomBalloon = BALLOON_BLOCKS[serverLevel.getRandom().nextInt(BALLOON_BLOCKS.length)];
+        Block[] balloons = getBalloonBlocks();
+        Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
         serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), Block.UPDATE_ALL);
 
         // Find ground nearby and spawn exactly ONE EnderManiac
