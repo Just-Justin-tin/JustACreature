@@ -16,11 +16,10 @@ public class EnderManiacSpawnHandler {
     private static final int SPAWN_CHANCE = 10;
     private static final int MAX_PROBES = 12;
 
-    // Place the balloon block with zero side effects on neighbors:
-    //   UPDATE_CLIENTS      (2)  - syncs the new block to clients so it renders
-    //   UPDATE_KNOWN_SHAPE  (16) - skips updating neighbor shapes (stops chorus re-checking support)
-    //   UPDATE_INVISIBLE    (32) - suppresses re-render propagation to surrounding blocks
-    // Together as 2|16|32 = 50, no neighbor is ever notified, so chorus plants never collapse.
+    // Place the balloon with zero side effects on neighbors:
+    //   UPDATE_CLIENTS     (2)  - syncs to clients so it renders
+    //   UPDATE_KNOWN_SHAPE (16) - skips neighbor shape updates (stops chorus re-checking support)
+    //   UPDATE_INVISIBLE   (32) - suppresses render propagation to surrounding blocks
     private static final int SILENT_PLACE_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_INVISIBLE;
 
     private static Block[] BALLOON_BLOCKS = null;
@@ -110,11 +109,20 @@ public class EnderManiacSpawnHandler {
         serverLevel.addFreshEntity(mob);
     }
 
+    /**
+     * Finds a ground position at least 2 blocks away (horizontally) from the balloon.
+     * Tries random offsets in the range [-5, -2] and [2, 5] on both axes,
+     * then drops straight down until it finds air above a solid block.
+     */
     private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
         int minY = level.getMinBuildHeight();
+
+        // All offsets here have |x| >= 2 or |z| >= 2, guaranteeing minimum 2-block distance.
         int[][] offsets = {
-                { 0, 0 }, { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 },
-                { 2, 1 }, { -2, 1 }, { 1, -2 }, { -1, 2 }
+                { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 },
+                { 2, 2 }, { -2, 2 }, { 2, -2 }, { -2, -2 },
+                { 3, 1 }, { -3, 1 }, { 1, 3 }, { -1, -3 },
+                { 4, 0 }, { -4, 0 }, { 0, 4 }, { 0, -4 }
         };
 
         for (int[] off : offsets) {
