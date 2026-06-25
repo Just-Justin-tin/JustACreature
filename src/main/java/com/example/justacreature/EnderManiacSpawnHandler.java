@@ -27,6 +27,10 @@ public class EnderManiacSpawnHandler {
 
     private static Block[] BALLOON_BLOCKS = null;
 
+    private static boolean isChunkLoaded(ServerLevel level, int blockX, int blockZ) {
+        return level.isLoaded(new BlockPos(blockX, 64, blockZ));
+    }
+
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
@@ -62,6 +66,10 @@ public class EnderManiacSpawnHandler {
         for (int[] off : offsets) {
             int x = balloonPos.getX() + off[0];
             int z = balloonPos.getZ() + off[1];
+
+            if (!level.isLoaded(new BlockPos(x, 64, z)))
+                continue;
+
             int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
             if (groundY > level.getMinBuildHeight()) {
                 return new BlockPos(x, groundY, z);
