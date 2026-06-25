@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
@@ -50,6 +51,25 @@ public class EnderManiacSpawnHandler {
         return BALLOON_BLOCKS;
     }
 
+    private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
+        int[][] offsets = {
+                { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 },
+                { 2, 2 }, { -2, 2 }, { 2, -2 }, { -2, -2 },
+                { 3, 1 }, { -3, 1 }, { 1, 3 }, { -1, -3 },
+                { 4, 0 }, { -4, 0 }, { 0, 4 }, { 0, -4 }
+        };
+
+        for (int[] off : offsets) {
+            int x = balloonPos.getX() + off[0];
+            int z = balloonPos.getZ() + off[1];
+            int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+            if (groundY > level.getMinBuildHeight()) {
+                return new BlockPos(x, groundY, z);
+            }
+        }
+        return null;
+    }
+
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if (!(event.getLevel() instanceof ServerLevel serverLevel))
@@ -79,8 +99,8 @@ public class EnderManiacSpawnHandler {
     }
 
     private static void doSpawn(ServerLevel serverLevel, int chunkX, int chunkZ) {
-        int minY = 50;
-        int maxY = 100;
+        int minY = 60;
+        int maxY = 90;
 
         BlockPos balloonPos = null;
         for (int probe = 0; probe < MAX_PROBES; probe++) {
@@ -119,36 +139,5 @@ public class EnderManiacSpawnHandler {
         mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
                 net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
         serverLevel.addFreshEntity(mob);
-    }
-
-    /**
-     * Finds a ground position at least 2 blocks away (horizontally) from the
-     * balloon.
-     * Tries random offsets in the range [-5, -2] and [2, 5] on both axes,
-     * then drops straight down until it finds air above a solid block.
-     */
-    private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
-        int minY = level.getMinBuildHeight();
-
-        // All offsets here have |x| >= 2 or |z| >= 2, guaranteeing minimum 2-block
-        // distance.
-        int[][] offsets = {
-                { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 },
-                { 2, 2 }, { -2, 2 }, { 2, -2 }, { -2, -2 },
-                { 3, 1 }, { -3, 1 }, { 1, 3 }, { -1, -3 },
-                { 4, 0 }, { -4, 0 }, { 0, 4 }, { 0, -4 }
-        };
-
-        for (int[] off : offsets) {
-            BlockPos.MutableBlockPos candidate = balloonPos.offset(off[0], 0, off[1]).mutable();
-            while (candidate.getY() > minY + 1) {
-                if (level.getBlockState(candidate).isAir()
-                        && !level.getBlockState(candidate.below()).isAir()) {
-                    return candidate.immutable();
-                }
-                candidate.move(0, -1, 0);
-            }
-        }
-        return null;
     }
 }
