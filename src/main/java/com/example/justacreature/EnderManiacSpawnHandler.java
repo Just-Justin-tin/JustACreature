@@ -135,8 +135,16 @@ public class EnderManiacSpawnHandler {
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
         serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
 
-        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
+        BlockPos spawnPos = findGroundNear(serverLevel, chunkX, chunkZ, balloonPos);
         if (spawnPos == null)
+            return;
+
+        // Guard: ensure the spawn chunk is fully loaded and ticket-level is valid
+        // getChunkSource().getChunk() returns null if the chunk isn't ready
+        net.minecraft.world.level.chunk.LevelChunk spawnChunk = serverLevel
+                .getChunkSource()
+                .getChunk(spawnPos.getX() >> 4, spawnPos.getZ() >> 4, false);
+        if (spawnChunk == null)
             return;
 
         EnderManiac mob = JustaCreatureMobs.ENDER_MANIAC.get().create(serverLevel);
