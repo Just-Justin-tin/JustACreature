@@ -115,7 +115,7 @@ public class EnderManiacSpawnHandler {
             int rx = chunkX + serverLevel.getRandom().nextInt(16);
             int rz = chunkZ + serverLevel.getRandom().nextInt(16);
 
-            for (int y = minY + 1; y < maxY; y++) {
+            for (int y = maxY - 1; y > minY; y--) {
                 BlockPos pos = new BlockPos(rx, y, rz);
                 Block b = serverLevel.getBlockState(pos).getBlock();
                 if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
