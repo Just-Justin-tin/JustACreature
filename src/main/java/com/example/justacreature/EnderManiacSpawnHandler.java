@@ -55,26 +55,37 @@ public class EnderManiacSpawnHandler {
         return BALLOON_BLOCKS;
     }
 
-    private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos) {
-        int[][] offsets = {
-                { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 },
-                { 2, 2 }, { -2, 2 }, { 2, -2 }, { -2, -2 },
-                { 3, 1 }, { -3, 1 }, { 1, 3 }, { -1, -3 },
-                { 4, 0 }, { -4, 0 }, { 0, 4 }, { 0, -4 }
-        };
+    private static BlockPos findGroundNear(ServerLevel level, BlockPos balloonPos, int chunkX, int chunkZ) {
+        // Try each of the 4 cardinal directions, walking outward 2–5 blocks
+        // Stop the moment we'd leave the chunk boundary
+        int chunkMinX = chunkX; // already the min block X
+        int chunkMinZ = chunkZ;
+        int chunkMaxX = chunkX + 15;
+        int chunkMaxZ = chunkZ + 15;
 
-        for (int[] off : offsets) {
-            int x = balloonPos.getX() + off[0];
-            int z = balloonPos.getZ() + off[1];
+        int[][] directions = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
 
-            if (!level.isLoaded(new BlockPos(x, 64, z)))
-                continue;
+        for (int[] dir : directions) {
+            for (int dist = 2; dist <= 5; dist++) {
+                int x = balloonPos.getX() + dir[0] * dist;
+                int z = balloonPos.getZ() + dir[1] * dist;
 
-            int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
-            if (groundY > level.getMinBuildHeight()) {
-                return new BlockPos(x, groundY, z);
+                // Stop walking this direction if we've left the chunk
+                if (x < chunkMinX || x > chunkMaxX || z < chunkMinZ || z > chunkMaxZ)
+                    break;
+
+                int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
+                if (groundY > level.getMinBuildHeight()) {
+                    return new BlockPos(x, groundY, z);
+                }
             }
         }
+
+        // Fallback: directly under the balloon
+        int groundY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, balloonPos.getX(), balloonPos.getZ());
+        if (groundY > level.getMinBuildHeight())
+            return new BlockPos(balloonPos.getX(), groundY, balloonPos.getZ());
+
         return null;
     }
 
@@ -135,7 +146,7 @@ public class EnderManiacSpawnHandler {
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
         serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
 
-        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos);
+        BlockPos spawnPos = findGroundNear(serverLevel, balloonPos, chunkX, chunkZ);
         if (spawnPos == null)
             return;
 
