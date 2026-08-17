@@ -147,7 +147,7 @@ public class JustaCreature {
                                                                         .fromNamespaceAndPath(MODID, "shiny_seeds")),
                                         BlockBehaviour.Properties.ofFullCopy(Blocks.ATTACHED_MELON_STEM)));
 
-        // 3. THE CUSTOM 1x2 STEM BLOCK
+        // 3. THE CUSTOM STEM BLOCK
         public static final DeferredBlock<Block> CRYSTALLINE_STEM = BLOCKS.register("crystalline_stem",
                         () -> new CrystallineStem(
                                         net.minecraft.resources.ResourceKey.create(

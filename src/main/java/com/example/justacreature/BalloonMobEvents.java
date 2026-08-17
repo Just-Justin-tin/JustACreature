@@ -34,10 +34,9 @@ public class BalloonMobEvents {
                         event.getEntity().getX(), event.getEntity().getY() + 1.0D, event.getEntity().getZ(),
                         10, 0.4D, 0.4D, 0.4D, 0.5D);
             }
-
-            // Instantly remove the entity so it doesn't play the slow "falling over" death
-            // animation
-            event.getEntity().discard();
+            if (event.getEntity() instanceof net.minecraft.world.entity.LivingEntity living) {
+                living.deathTime = 20; // Skip straight to end of death animation (20 = done)
+            }
         }
     }
 
