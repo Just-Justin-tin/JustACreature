@@ -10,6 +10,9 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.ChunkDataEvent;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.entity.EntityType;
 
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
@@ -95,26 +98,26 @@ public class EnderManiacSpawnHandler {
             return;
         if (serverLevel.dimension() != Level.END)
             return;
-        if (!event.isNewChunk())
-            return;
-        if (!(event.getChunk() instanceof LevelChunk chunk))
-            return;
-        if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
-            return;
+        if (!event.isNewChunk()) {
+            if (!(event.getChunk() instanceof LevelChunk chunk))
+                return;
+            if (serverLevel.getRandom().nextInt(100) >= SPAWN_CHANCE)
+                return;
 
-        final int chunkX = chunk.getPos().getMinBlockX();
-        final int chunkZ = chunk.getPos().getMinBlockZ();
+            final int chunkX = chunk.getPos().getMinBlockX();
+            final int chunkZ = chunk.getPos().getMinBlockZ();
 
-        // Defer ALL block reading/writing to the next server tick.
-        // This means the chunk load thread is never blocked, which stops the infinite
-        // save hang.
-        serverLevel.getServer().execute(() -> {
-            try {
-                doSpawn(serverLevel, chunkX, chunkZ);
-            } catch (Exception e) {
-                JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed: {}", e.getMessage());
-            }
-        });
+            // Defer ALL block reading/writing to the next server tick.
+
+            serverLevel.getServer().execute(() -> {
+                try {
+                    doSpawn(serverLevel, chunkX, chunkZ);
+                } catch (Exception e) {
+                    JustaCreature.LOGGER.error("[JustACreature] EnderManiacSpawnHandler failed: {}", e.getMessage());
+                }
+            });
+        }
+
     }
 
     private static void doSpawn(ServerLevel serverLevel, int chunkX, int chunkZ) {
@@ -163,8 +166,8 @@ public class EnderManiacSpawnHandler {
             return;
         mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
                 serverLevel.getRandom().nextFloat() * 360f, 0f);
+        serverLevel.addFreshEntity(mob);
         mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
                 net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
-        serverLevel.addFreshEntity(mob);
     }
 }
