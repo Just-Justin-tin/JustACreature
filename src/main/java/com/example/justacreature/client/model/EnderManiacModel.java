@@ -22,6 +22,7 @@ public class EnderManiacModel extends HierarchicalModel<EnderManiac> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
 			ResourceLocation.fromNamespaceAndPath("justacreature", "endermaniacmodel"), "main");
 
+	private final ModelPart root;
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart right_arm;
@@ -54,6 +55,7 @@ public class EnderManiacModel extends HierarchicalModel<EnderManiac> {
 	private final ModelPart left_arm_small3;
 
 	public EnderManiacModel(ModelPart root) {
+		this.root = root;
 		this.body = root.getChild("body");
 		this.head = root.getChild("head");
 		this.right_arm = root.getChild("right_arm");
@@ -246,7 +248,7 @@ public class EnderManiacModel extends HierarchicalModel<EnderManiac> {
 
 	@Override
 	public ModelPart root() {
-		return this.body;
+		return this.root;
 	}
 
 	@Override
