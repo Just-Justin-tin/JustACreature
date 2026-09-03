@@ -233,7 +233,7 @@ public class CreatureBosambo extends Sniffer {
                 }
             }
         }
-        // ADD THIS:
+
         if (IS_LAYING.equals(key)) {
             if (this.level().isClientSide()) {
                 if (this.entityData.get(IS_LAYING)) {
@@ -502,7 +502,7 @@ public class CreatureBosambo extends Sniffer {
         super.travel(travelVector);
     }
 
-    // 4. THIS IS THE CRITICAL FIX: Tells the mob how fast to go while ridden!
+    // 4. Tells the mob how fast to go while ridden!
     @Override
     protected float getRiddenSpeed(Player passenger) {
         // Gets Bosambo's base speed and multiplies it by 0.8 so he isn't insanely fast

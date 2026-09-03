@@ -41,7 +41,7 @@ public class EnderManiac extends Monster {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(IS_REVEALED, false);
-        builder.define(IS_DISGUISED, false);
+        builder.define(IS_DISGUISED, true);
     }
 
     @Override
@@ -68,9 +68,7 @@ public class EnderManiac extends Monster {
 
         if (this.level().isClientSide()) {
             if (this.getEntityData().get(IS_REVEALED)) {
-                this.revealAnimationState.startIfStopped(this.tickCount);
-            } else {
-                this.revealAnimationState.stop();
+                this.revealAnimationState.start(this.tickCount);
             }
         }
     }
