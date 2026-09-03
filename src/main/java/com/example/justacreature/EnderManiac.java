@@ -68,7 +68,9 @@ public class EnderManiac extends Monster {
 
         if (this.level().isClientSide()) {
             if (this.getEntityData().get(IS_REVEALED)) {
-                this.revealAnimationState.start(this.tickCount);
+                this.revealAnimationState.startIfStopped(this.tickCount);
+            } else {
+                this.revealAnimationState.stop();
             }
         }
     }
