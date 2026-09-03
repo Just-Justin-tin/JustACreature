@@ -43,4 +43,35 @@ public class EnderManiac extends Monster {
         builder.define(IS_REVEALED, false);
         builder.define(IS_DISGUISED, false);
     }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+
+        // Listen for changes to the IS_REVEALED variable
+        if (IS_REVEALED.equals(key)) {
+            if (this.level().isClientSide()) {
+                if (this.entityData.get(IS_REVEALED)) {
+                    // Start the animation
+                    this.revealAnimationState.start(this.tickCount);
+                } else {
+                    // Stop the animation
+                    this.revealAnimationState.stop();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (this.level().isClientSide()) {
+            if (this.getEntityData().get(IS_REVEALED)) {
+                this.revealAnimationState.startIfStopped(this.tickCount);
+            } else {
+                this.revealAnimationState.stop();
+            }
+        }
+    }
 }

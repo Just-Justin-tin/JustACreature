@@ -1,5 +1,6 @@
 package com.example.justacreature.client.model;
 
+import com.example.justacreature.EnderManiac;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
@@ -13,12 +14,14 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.client.model.HierarchicalModel;
 
-public class EnderManiacModel<T extends Entity> extends EntityModel<T> {
+public class EnderManiacModel extends HierarchicalModel<EnderManiac> {
 	// This layer location should be baked with EntityRendererProvider.Context in
 	// the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
 			ResourceLocation.fromNamespaceAndPath("justacreature", "endermaniacmodel"), "main");
+
 	private final ModelPart body;
 	private final ModelPart head;
 	private final ModelPart right_arm;
@@ -242,9 +245,18 @@ public class EnderManiacModel<T extends Entity> extends EntityModel<T> {
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-			float headPitch) {
+	public ModelPart root() {
+		return this.body;
+	}
 
+	@Override
+	public void setupAnim(EnderManiac entity, float limbSwing, float limbSwingAmount, float ageInTicks,
+			float netHeadYaw, float headPitch) {
+		// Reset parts before animating (standard practice)
+		this.root().getAllParts().forEach(ModelPart::resetPose);
+
+		// Access the animation state THROUGH the entity parameter
+		this.animate(entity.revealAnimationState, EnderManiacAnimation.reveal, ageInTicks, 1.0F);
 	}
 
 	@Override
