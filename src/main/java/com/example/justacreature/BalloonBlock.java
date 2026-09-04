@@ -82,31 +82,4 @@ public class BalloonBlock extends Block {
         return super.playerWillDestroy(level, pos, state, player);
     }
 
-    @Override
-    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        super.onPlace(state, level, pos, oldState, isMoving);
-
-        // Only run on the server and only if it's a new block placement
-        if (!level.isClientSide() && !state.is(oldState.getBlock())) {
-
-            // Create a 1x1x1 search box exactly where the block is
-            net.minecraft.world.phys.AABB checkBox = new net.minecraft.world.phys.AABB(pos);
-            java.util.List<EnderManiac> existingManiacs = level.getEntitiesOfClass(EnderManiac.class, checkBox);
-
-            // If no EnderManiac is inside the block, spawn one
-            if (existingManiacs.isEmpty()) {
-                EnderManiac maniac = JustaCreatureMobs.ENDER_MANIAC.get().create(level);
-                if (maniac != null) {
-                    // Center the entity perfectly inside the block
-                    maniac.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0.0F, 0.0F);
-
-                    // Set default states so it starts disguised
-                    maniac.setDisguised(true);
-                    maniac.setRevealed(false);
-
-                    level.addFreshEntity(maniac);
-                }
-            }
-        }
-    }
 }

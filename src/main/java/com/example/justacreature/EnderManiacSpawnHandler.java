@@ -121,13 +121,15 @@ public class EnderManiacSpawnHandler {
     }
 
     private static void doSpawn(ServerLevel serverLevel, int chunkX, int chunkZ) {
-        int minY = 60;
-        int maxY = 90;
 
         BlockPos balloonPos = null;
         for (int probe = 0; probe < MAX_PROBES; probe++) {
             int rx = chunkX + serverLevel.getRandom().nextInt(16);
             int rz = chunkZ + serverLevel.getRandom().nextInt(16);
+
+            int surfaceY = serverLevel.getHeight(Heightmap.Types.WORLD_SURFACE, rx, rz);
+            int maxY = Math.min(serverLevel.getMaxBuildHeight() - 1, surfaceY + 8);
+            int minY = Math.max(serverLevel.getMinBuildHeight() + 1, surfaceY - 48);
 
             for (int y = maxY - 1; y > minY; y--) {
                 BlockPos pos = new BlockPos(rx, y, rz);
