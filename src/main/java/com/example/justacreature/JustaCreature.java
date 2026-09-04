@@ -196,6 +196,11 @@ public class JustaCreature {
                         () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MODID,
                                         "bosambo_step")));
 
+        public static final DeferredHolder<SoundEvent, SoundEvent> ENDERMANIAC_REVEAL = SOUNDS.register(
+                        "endermaniac_reveal",
+                        () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(MODID,
+                                        "endermaniac_reveal")));
+
         public static final DeferredBlock<Block> BOSAMBO_EGG_BLOCK = BLOCKS.register("bosambo_egg",
                         () -> new BosamboEggBlock(
                                         BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(0.5F)

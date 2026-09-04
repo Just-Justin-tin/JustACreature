@@ -47,5 +47,9 @@
             "justacreature:bosambo_footstep5",
             "justacreature:bosambo_footstep6"
         ]
+    },
+    "endermaniac_reveal": {
+        "category": "neutral",
+        "sounds": "justacreature:endermaniac_reveal"
     }
 }

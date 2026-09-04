@@ -17,7 +17,7 @@ import net.minecraft.world.entity.EntityType;
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class EnderManiacSpawnHandler {
 
-    private static final int SPAWN_CHANCE = 50;
+    private static final int SPAWN_CHANCE = 3;
     private static final int MAX_PROBES = 12;
 
     // Place the balloon with zero side effects on neighbors:
@@ -168,6 +168,8 @@ public class EnderManiacSpawnHandler {
             return;
         mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
                 serverLevel.getRandom().nextFloat() * 360f, 0f);
+        mob.setPersistenceRequired();
+        mob.setBalloonPos(balloonPos);
         mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
                 net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);
         serverLevel.addFreshEntity(mob);

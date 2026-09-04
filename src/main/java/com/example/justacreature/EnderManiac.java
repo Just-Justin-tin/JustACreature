@@ -7,6 +7,8 @@ import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 
 public class EnderManiac extends Monster {
 
@@ -16,6 +18,16 @@ public class EnderManiac extends Monster {
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
 
     public final AnimationState revealAnimationState = new AnimationState();
+
+    private BlockPos balloonPos;
+
+    public void setBalloonPos(BlockPos pos) {
+        this.balloonPos = pos;
+    }
+
+    public BlockPos getBalloonPos() {
+        return this.balloonPos;
+    }
 
     public void setRevealed(boolean revealed) {
         this.entityData.set(IS_REVEALED, revealed);
@@ -54,17 +66,45 @@ public class EnderManiac extends Monster {
                 if (this.entityData.get(IS_REVEALED)) {
                     // Start the animation
                     this.revealAnimationState.start(this.tickCount);
+                    super.playSound(com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(), 1.0F, 1.0F);
                 } else {
                     // Stop the animation
                     this.revealAnimationState.stop();
+                    super.playSound(com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(), 1.0F, 1.0F);
                 }
             }
         }
     }
 
     @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        if (this.balloonPos != null) {
+            tag.putInt("BalloonX", this.balloonPos.getX());
+            tag.putInt("BalloonY", this.balloonPos.getY());
+            tag.putInt("BalloonZ", this.balloonPos.getZ());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("BalloonX")) {
+            this.balloonPos = new BlockPos(tag.getInt("BalloonX"), tag.getInt("BalloonY"), tag.getInt("BalloonZ"));
+        }
+    }
+
+    @Override
     public void tick() {
         super.tick();
+
+        if (this.balloonPos != null) {
+            this.getLookControl().setLookAt(
+                    this.balloonPos.getX() + 0.5,
+                    this.balloonPos.getY() + 0.5,
+                    this.balloonPos.getZ() + 0.5,
+                    30.0F, 30.0F);
+        }
 
         if (this.level().isClientSide()) {
             if (this.getEntityData().get(IS_REVEALED)) {
