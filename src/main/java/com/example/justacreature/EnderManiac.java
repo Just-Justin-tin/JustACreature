@@ -3,6 +3,7 @@ package com.example.justacreature;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
@@ -14,12 +15,15 @@ public class EnderManiac extends Monster {
 
     private static final EntityDataAccessor<Boolean> IS_REVEALED = SynchedEntityData
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
+
     private static final EntityDataAccessor<Boolean> IS_DISGUISED = SynchedEntityData
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
 
     public final AnimationState revealAnimationState = new AnimationState();
 
     private BlockPos balloonPos;
+
+    private int revealSoundDelay = -1;
 
     public void setBalloonPos(BlockPos pos) {
         this.balloonPos = pos;
@@ -57,18 +61,33 @@ public class EnderManiac extends Monster {
     }
 
     @Override
+    public boolean hurt(DamageSource source, float amount) {
+        // If the mob takes damage on the server, cancel the animation
+        if (!this.level().isClientSide() && this.entityData.get(IS_DISGUISED)) {
+            this.setRevealed(true);
+            this.setDisguised(false);
+        }
+
+        return super.hurt(source, amount);
+    }
+
+    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
 
         // Listen for changes to the IS_REVEALED variable
         if (IS_REVEALED.equals(key)) {
-            if (this.level().isClientSide()) {
-                if (this.entityData.get(IS_REVEALED)) {
-                    // Start the animation
+            if (this.entityData.get(IS_REVEALED)) {
+                if (this.level().isClientSide()) {
                     this.revealAnimationState.start(this.tickCount);
                 } else {
-                    // Stop the animation
+                    this.revealSoundDelay = 90; // 4.5 seconds at 20 ticks/sec
+                }
+            } else {
+                if (this.level().isClientSide()) {
                     this.revealAnimationState.stop();
+                } else {
+                    this.revealSoundDelay = -1; // cancel a pending sound if un-revealed early
                 }
             }
         }
@@ -103,11 +122,19 @@ public class EnderManiac extends Monster {
                     this.balloonPos.getZ() + 0.5,
                     30.0F, 30.0F);
         }
+        if (this.getEntityData().get(IS_REVEALED)) {
 
-        if (this.level().isClientSide()) {
-            if (this.getEntityData().get(IS_REVEALED)) {
+            if (!this.level().isClientSide() && this.revealSoundDelay > 0) {
+                if (this.revealSoundDelay == 90) {
+                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                            com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(),
+                            this.getSoundSource(), 1.0F, 1.0F);
+                }
+                this.revealSoundDelay--;
+            }
+
+            if (this.revealSoundDelay == 0) {
                 this.revealAnimationState.startIfStopped(this.tickCount);
-                super.playSound(com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(), 1.0F, 1.0F);
             } else {
                 this.revealAnimationState.stop();
             }
