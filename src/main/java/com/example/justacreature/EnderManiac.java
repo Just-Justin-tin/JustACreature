@@ -66,11 +66,9 @@ public class EnderManiac extends Monster {
                 if (this.entityData.get(IS_REVEALED)) {
                     // Start the animation
                     this.revealAnimationState.start(this.tickCount);
-                    super.playSound(com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(), 1.0F, 1.0F);
                 } else {
                     // Stop the animation
                     this.revealAnimationState.stop();
-                    super.playSound(com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(), 1.0F, 1.0F);
                 }
             }
         }
@@ -109,6 +107,7 @@ public class EnderManiac extends Monster {
         if (this.level().isClientSide()) {
             if (this.getEntityData().get(IS_REVEALED)) {
                 this.revealAnimationState.startIfStopped(this.tickCount);
+                super.playSound(com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(), 1.0F, 1.0F);
             } else {
                 this.revealAnimationState.stop();
             }

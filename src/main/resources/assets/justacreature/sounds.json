@@ -50,6 +50,8 @@
     },
     "endermaniac_reveal": {
         "category": "neutral",
-        "sounds": "justacreature:endermaniac_reveal"
+        "sounds": [
+            "justacreature:endermaniac_reveal"
+        ]
     }
 }
