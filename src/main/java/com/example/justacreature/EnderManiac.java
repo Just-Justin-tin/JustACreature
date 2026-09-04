@@ -16,6 +16,9 @@ public class EnderManiac extends Monster {
     private static final EntityDataAccessor<Boolean> IS_REVEALED = SynchedEntityData
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
 
+    private static final EntityDataAccessor<Boolean> IS_REVEALING = SynchedEntityData
+            .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
+
     private static final EntityDataAccessor<Boolean> IS_DISGUISED = SynchedEntityData
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
 
@@ -49,6 +52,14 @@ public class EnderManiac extends Monster {
         return this.entityData.get(IS_DISGUISED);
     }
 
+    public void setRevealing(boolean revealing) {
+        this.entityData.set(IS_REVEALING, revealing);
+    }
+
+    public boolean isRevealing() {
+        return this.entityData.get(IS_REVEALING);
+    }
+
     public EnderManiac(EntityType<? extends Monster> type, Level level) {
         super(type, level);
     }
@@ -76,19 +87,14 @@ public class EnderManiac extends Monster {
         super.onSyncedDataUpdated(key);
 
         // Listen for changes to the IS_REVEALED variable
-        if (IS_REVEALED.equals(key)) {
-            if (this.entityData.get(IS_REVEALED)) {
-                if (this.level().isClientSide()) {
-                    this.revealAnimationState.start(this.tickCount);
-                } else {
-                    this.revealSoundDelay = 90; // 4.5 seconds at 20 ticks/sec
-                }
+        if (IS_REVEALING.equals(key)) {
+            if (this.entityData.get(IS_REVEALING)) {
+                this.revealSoundDelay = 90; // 4.5 seconds at 20 ticks/sec
             } else {
                 if (this.level().isClientSide()) {
                     this.revealAnimationState.stop();
-                } else {
-                    this.revealSoundDelay = -1; // cancel a pending sound if un-revealed early
                 }
+                this.revealSoundDelay = -1; // cancel a pending sound if un-revealed early
             }
         }
     }
@@ -122,22 +128,18 @@ public class EnderManiac extends Monster {
                     this.balloonPos.getZ() + 0.5,
                     30.0F, 30.0F);
         }
-        if (this.getEntityData().get(IS_REVEALED)) {
-
-            if (!this.level().isClientSide() && this.revealSoundDelay > 0) {
-                if (this.revealSoundDelay == 90) {
-                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
-                            com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(),
-                            this.getSoundSource(), 1.0F, 1.0F);
-                }
-                this.revealSoundDelay--;
+        if (this.getEntityData().get(IS_REVEALING) && this.revealSoundDelay > 0) {
+            if (this.revealSoundDelay == 90 && !this.level().isClientSide()) {
+                this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
+                        com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(),
+                        this.getSoundSource(), 1.0F, 1.0F);
             }
+            this.revealSoundDelay--;
+        }
 
-            if (this.revealSoundDelay == 0) {
-                this.revealAnimationState.startIfStopped(this.tickCount);
-            } else {
-                this.revealAnimationState.stop();
-            }
+        if (this.revealSoundDelay == 0 && this.level().isClientSide()) {
+            this.setRevealed(true);
+            this.revealAnimationState.startIfStopped(this.tickCount);
         }
     }
 }
