@@ -218,14 +218,14 @@ public class EnderManiac extends Monster {
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
 
-        else if (heldStack.is(Items.CHORUS_FRUIT) && this.isTrading()) {
+        else if (heldStack.is(Items.CHORUS_FRUIT) && this.isTrading() && this.TradeTimer <= 0) {
             if (!this.level().isClientSide()) {
                 int chorusAmmount = heldStack.getCount();
                 if (!player.isCreative()) {
                     heldStack.shrink(chorusAmmount);
                 }
 
-                Vec3 lookDirection = this.getLookAngle();
+                // Vec3 lookDirection = this.getLookAngle();
                 this.TradeTimer = random.nextInt(60) + 60;
 
                 if (this.TradeTimer == 0) {
@@ -234,8 +234,8 @@ public class EnderManiac extends Monster {
                             chorusAmmount);
                     net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(
                             this.level(), getX(), getY(), getZ(), stack);
-                    item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.5, 0.50,
-                            lookDirection.z + this.random.nextFloat() * 0.5);
+                    // item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.5, 0.50,
+                    // lookDirection.z + this.random.nextFloat() * 0.5);
                     item.setPos(this.getX(), this.getY() + 1.5, this.getZ());
                     this.level().addFreshEntity(item);
                 }
