@@ -246,6 +246,7 @@ public class JustaCreature {
                                                 output.accept(MAGENTA_BALLOON.get());
                                                 output.accept(LIGHT_BLUE_BALLOON.get());
                                                 output.accept(LIGHT_GRAY_BALLOON.get());
+                                                output.accept(LOST_BALLOON.get());
                                         }).build());
 
         public JustaCreature(IEventBus modEventBus, ModContainer modContainer) {

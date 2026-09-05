@@ -257,6 +257,11 @@ public class EnderManiacModel extends HierarchicalModel<EnderManiac> {
 		// Reset parts before animating (standard practice)
 		this.root().getAllParts().forEach(ModelPart::resetPose);
 
+		this.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
+		this.head.xRot = headPitch * ((float) Math.PI / 180F);
+		this.head_small1.yRot = netHeadYaw * ((float) Math.PI / 180F);
+		this.head_small1.xRot = headPitch * ((float) Math.PI / 180F);
+
 		// Access the animation state THROUGH the entity parameter
 		this.animate(entity.revealAnimationState, EnderManiacAnimation.reveal, ageInTicks, 1.0F);
 	}
