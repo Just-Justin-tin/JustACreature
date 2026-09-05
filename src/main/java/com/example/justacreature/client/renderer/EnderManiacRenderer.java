@@ -27,12 +27,9 @@ public class EnderManiacRenderer extends MobRenderer<EnderManiac, EnderManiacMod
     public ResourceLocation getTextureLocation(EnderManiac entity) {
         // 3. Check our custom synced data! If it is laying down or sleeping, return the
         // sleep texture.
+
         if (entity.isRevealed()) {
             return REVEALED_TEXTURE;
-        }
-
-        if (entity.isDisguised()) {
-            return DISGUISED_TEXTURE;
         }
 
         // Otherwise, return the normal texture
