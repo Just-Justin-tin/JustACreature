@@ -37,22 +37,7 @@ public class EnderManiacSpawnHandler {
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
-                    JustaCreature.WHITE_BALLOON.get(),
-                    JustaCreature.RED_BALLOON.get(),
-                    JustaCreature.BLUE_BALLOON.get(),
-                    JustaCreature.PINK_BALLOON.get(),
-                    JustaCreature.GREEN_BALLOON.get(),
-                    JustaCreature.YELLOW_BALLOON.get(),
-                    JustaCreature.ORANGE_BALLOON.get(),
-                    JustaCreature.PURPLE_BALLOON.get(),
-                    JustaCreature.BLACK_BALLOON.get(),
-                    JustaCreature.GRAY_BALLOON.get(),
-                    JustaCreature.BROWN_BALLOON.get(),
-                    JustaCreature.LIME_BALLOON.get(),
-                    JustaCreature.CYAN_BALLOON.get(),
-                    JustaCreature.MAGENTA_BALLOON.get(),
-                    JustaCreature.LIGHT_BLUE_BALLOON.get(),
-                    JustaCreature.LIGHT_GRAY_BALLOON.get()
+                    JustaCreature.LOST_BALLOON.get(),
             };
         }
         return BALLOON_BLOCKS;
@@ -168,7 +153,7 @@ public class EnderManiacSpawnHandler {
             return;
         mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5,
                 serverLevel.getRandom().nextFloat() * 360f, 0f);
-        mob.setPersistenceRequired();
+        mob.setForcedPersistent(true);
         mob.setBalloonPos(balloonPos);
         mob.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(spawnPos),
                 net.minecraft.world.entity.MobSpawnType.CHUNK_GENERATION, null);

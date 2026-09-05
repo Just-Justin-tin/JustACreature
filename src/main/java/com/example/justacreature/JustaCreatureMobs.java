@@ -150,7 +150,7 @@ public class JustaCreatureMobs {
                                 .build());
 
                 event.put(ENDER_MANIAC.get(), EnderMan.createAttributes()
-                                .add(Attributes.MAX_HEALTH, 60.0D)
+                                .add(Attributes.MAX_HEALTH, 10000.0D)
                                 .add(Attributes.ATTACK_DAMAGE, 6.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                                 .add(Attributes.FOLLOW_RANGE, 32.0D)

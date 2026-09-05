@@ -96,6 +96,12 @@ public class JustaCreature {
         public static final DeferredItem<BlockItem> CRYSTALLINE_MELON_ITEM = ITEMS
                         .registerSimpleBlockItem("crystalline_melon", CRYSTALLINE_MELON);
 
+        public static final DeferredBlock<Block> LOST_BALLOON = BLOCKS.register("lost_balloon",
+                        () -> new LostBalloon());
+
+        public static final DeferredItem<BlockItem> LOST_BALLOON_ITEM = ITEMS
+                        .registerSimpleBlockItem("lost_balloon", LOST_BALLOON);
+
         private static DeferredBlock<Block> registerBalloon(String color, DyeColor dyeColor) {
                 DeferredBlock<Block> block = BLOCKS.register(color + "_balloon",
                                 () -> new BalloonBlock(dyeColor));

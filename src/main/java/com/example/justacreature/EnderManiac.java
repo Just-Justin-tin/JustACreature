@@ -5,6 +5,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -12,10 +14,14 @@ import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 public class EnderManiac extends Monster {
 
@@ -28,11 +34,22 @@ public class EnderManiac extends Monster {
     private static final EntityDataAccessor<Boolean> HAS_REVEALED = SynchedEntityData
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
 
+    private static final EntityDataAccessor<Boolean> IS_TRADING = SynchedEntityData
+            .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
+
     public final AnimationState revealAnimationState = new AnimationState();
 
     private BlockPos balloonPos;
 
     private int AnimationTimer = -1;
+
+    private int TradeTimer = -1;
+
+    private boolean forcedPersistent = true;
+
+    public void setForcedPersistent(boolean value) {
+        this.forcedPersistent = value;
+    }
 
     public void setBalloonPos(BlockPos pos) {
         this.balloonPos = pos;
@@ -54,6 +71,10 @@ public class EnderManiac extends Monster {
         this.entityData.set(HAS_REVEALED, isRevealed);
     }
 
+    public void setTrading(boolean trading) {
+        this.entityData.set(IS_TRADING, trading);
+    }
+
     public boolean isRevealing() {
         return this.entityData.get(IS_REVEALING);
     }
@@ -66,8 +87,38 @@ public class EnderManiac extends Monster {
         return this.entityData.get(HAS_REVEALED);
     }
 
+    public boolean isTrading() {
+        return this.entityData.get(IS_TRADING);
+    }
+
     public EnderManiac(EntityType<? extends Monster> type, Level level) {
         super(type, level);
+    }
+
+    private static Block[] TRADE_BALLOON_ITEMS = null;
+
+    private static Block[] getTradeBalloonItems() {
+        if (TRADE_BALLOON_ITEMS == null) {
+            TRADE_BALLOON_ITEMS = new Block[] {
+                    JustaCreature.RED_BALLOON.get(),
+                    JustaCreature.WHITE_BALLOON.get(),
+                    JustaCreature.BLUE_BALLOON.get(),
+                    JustaCreature.GREEN_BALLOON.get(),
+                    JustaCreature.YELLOW_BALLOON.get(),
+                    JustaCreature.MAGENTA_BALLOON.get(),
+                    JustaCreature.ORANGE_BALLOON.get(),
+                    JustaCreature.PINK_BALLOON.get(),
+                    JustaCreature.CYAN_BALLOON.get(),
+                    JustaCreature.PURPLE_BALLOON.get(),
+                    JustaCreature.GRAY_BALLOON.get(),
+                    JustaCreature.LIGHT_BLUE_BALLOON.get(),
+                    JustaCreature.LIME_BALLOON.get(),
+                    JustaCreature.BROWN_BALLOON.get(),
+                    JustaCreature.BLACK_BALLOON.get(),
+                    JustaCreature.LIGHT_GRAY_BALLOON.get(),
+            };
+        }
+        return TRADE_BALLOON_ITEMS;
     }
 
     @Override
@@ -76,6 +127,7 @@ public class EnderManiac extends Monster {
         builder.define(IS_REVEALING, false);
         builder.define(IS_DISGUISED, true);
         builder.define(HAS_REVEALED, false);
+        builder.define(IS_TRADING, false);
     }
 
     @Override
@@ -146,8 +198,62 @@ public class EnderManiac extends Monster {
     }
 
     @Override
+    public boolean isPersistenceRequired() {
+        return this.forcedPersistent;
+    }
+
+    @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        var heldStack = player.getItemInHand(hand);
+
+        if (heldStack.is(JustaCreature.LOST_BALLOON_ITEM.get()) && !this.isTrading()) {
+            if (!this.level().isClientSide()) {
+                this.setTrading(true);
+                if (!player.isCreative()) {
+                    heldStack.shrink(1);
+                }
+                this.playSound(net.minecraft.sounds.SoundEvents.ENDERMAN_AMBIENT, 1.0F, 1.0F);
+
+            }
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+
+        else if (heldStack.is(Items.CHORUS_FRUIT) && this.isTrading()) {
+            if (!this.level().isClientSide()) {
+                int chorusAmmount = heldStack.getCount();
+                if (!player.isCreative()) {
+                    heldStack.shrink(chorusAmmount);
+                }
+
+                Vec3 lookDirection = this.getLookAngle();
+                this.TradeTimer = random.nextInt(60) + 60;
+
+                if (this.TradeTimer == 0) {
+                    ItemStack stack = new ItemStack(
+                            getTradeBalloonItems()[random.nextInt(getTradeBalloonItems().length)].asItem(),
+                            chorusAmmount);
+                    net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(
+                            this.level(), getX(), getY(), getZ(), stack);
+                    item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.5, 0.50,
+                            lookDirection.z + this.random.nextFloat() * 0.5);
+                    item.setPos(this.getX(), this.getY() + 1.5, this.getZ());
+                    this.level().addFreshEntity(item);
+                }
+
+                this.playSound(net.minecraft.sounds.SoundEvents.ENDERMAN_AMBIENT, 1.0F, 1.0F);
+            }
+            return InteractionResult.sidedSuccess(this.level().isClientSide());
+        }
+        return super.mobInteract(player, hand);
+    }
+
+    @Override
     public void tick() {
         super.tick();
+
+        if (this.TradeTimer > 0) {
+            this.TradeTimer--;
+        }
 
         if (this.balloonPos != null) {
             this.getLookControl().setLookAt(
