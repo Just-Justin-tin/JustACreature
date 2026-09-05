@@ -67,6 +67,22 @@ public class BalloonBlock extends Block {
 
             if (hasSilkTouch) {
                 Block.popResource(level, pos, new ItemStack(this.asItem()));
+                net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(10.0D);
+                java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
+
+                for (EnderManiac maniac : nearbyManiacs) {
+                    maniac.setCanLookAtPlayer(true);
+                }
+            } else {
+                // Search in a 10-block radius around the balloon
+                net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(10.0D);
+                java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
+
+                for (EnderManiac maniac : nearbyManiacs) {
+                    maniac.setRevealed(true); // Triggers the synced data change
+                    maniac.setDisguised(false); // Optional: turn off the disguise state
+
+                }
             }
         }
         return super.playerWillDestroy(level, pos, state, player);

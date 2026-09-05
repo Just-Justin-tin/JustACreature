@@ -12,6 +12,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -37,6 +38,9 @@ public class EnderManiac extends Monster {
     private static final EntityDataAccessor<Boolean> IS_TRADING = SynchedEntityData
             .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
 
+    private static final EntityDataAccessor<Boolean> CAN_LOOK_AT_PLAYER = SynchedEntityData
+            .defineId(EnderManiac.class, EntityDataSerializers.BOOLEAN);
+
     public final AnimationState revealAnimationState = new AnimationState();
 
     private BlockPos balloonPos;
@@ -46,6 +50,10 @@ public class EnderManiac extends Monster {
     private int TradeTimer = -1;
 
     private boolean forcedPersistent = true;
+
+    private int pendingChorusCount;
+
+    private Player tradedPlayer;
 
     public void setForcedPersistent(boolean value) {
         this.forcedPersistent = value;
@@ -75,6 +83,10 @@ public class EnderManiac extends Monster {
         this.entityData.set(IS_TRADING, trading);
     }
 
+    public void setCanLookAtPlayer(boolean canLookAtPlayer) {
+        this.entityData.set(CAN_LOOK_AT_PLAYER, canLookAtPlayer);
+    }
+
     public boolean isRevealing() {
         return this.entityData.get(IS_REVEALING);
     }
@@ -89,6 +101,10 @@ public class EnderManiac extends Monster {
 
     public boolean isTrading() {
         return this.entityData.get(IS_TRADING);
+    }
+
+    public boolean canLookAtPlayer() {
+        return this.entityData.get(CAN_LOOK_AT_PLAYER);
     }
 
     public EnderManiac(EntityType<? extends Monster> type, Level level) {
@@ -128,6 +144,7 @@ public class EnderManiac extends Monster {
         builder.define(IS_DISGUISED, true);
         builder.define(HAS_REVEALED, false);
         builder.define(IS_TRADING, false);
+        builder.define(CAN_LOOK_AT_PLAYER, false);
     }
 
     @Override
@@ -135,7 +152,9 @@ public class EnderManiac extends Monster {
         // If the mob takes damage on the server, cancel the animation
         if (!this.level().isClientSide() && this.entityData.get(IS_DISGUISED)) {
             this.setRevealing(true);
+            this.setRevealed(false);
             this.setDisguised(false);
+            this.setTrading(false);
         }
 
         return super.hurt(source, amount);
@@ -158,6 +177,7 @@ public class EnderManiac extends Monster {
         }
     }
 
+    // look at balloon method
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
@@ -168,6 +188,7 @@ public class EnderManiac extends Monster {
         }
     }
 
+    // look at balloon method
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
@@ -206,6 +227,7 @@ public class EnderManiac extends Monster {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         var heldStack = player.getItemInHand(hand);
 
+        // Lost balloon to trade method
         if (heldStack.is(JustaCreature.LOST_BALLOON_ITEM.get()) && !this.isTrading()) {
             if (!this.level().isClientSide()) {
                 this.setTrading(true);
@@ -218,29 +240,18 @@ public class EnderManiac extends Monster {
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
 
+        // Chorus fruit to balloon trading method
         else if (heldStack.is(Items.CHORUS_FRUIT) && this.isTrading() && this.TradeTimer <= 0) {
             if (!this.level().isClientSide()) {
                 int chorusAmmount = heldStack.getCount();
                 if (!player.isCreative()) {
                     heldStack.shrink(chorusAmmount);
                 }
-
-                // Vec3 lookDirection = this.getLookAngle();
+                this.tradedPlayer = player;
                 this.TradeTimer = random.nextInt(60) + 60;
 
-                if (this.TradeTimer == 0) {
-                    ItemStack stack = new ItemStack(
-                            getTradeBalloonItems()[random.nextInt(getTradeBalloonItems().length)].asItem(),
-                            chorusAmmount);
-                    net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(
-                            this.level(), getX(), getY(), getZ(), stack);
-                    // item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.5, 0.50,
-                    // lookDirection.z + this.random.nextFloat() * 0.5);
-                    item.setPos(this.getX(), this.getY() + 1.5, this.getZ());
-                    this.level().addFreshEntity(item);
-                }
-
                 this.playSound(net.minecraft.sounds.SoundEvents.ENDERMAN_AMBIENT, 1.0F, 1.0F);
+                this.pendingChorusCount = chorusAmmount;
             }
             return InteractionResult.sidedSuccess(this.level().isClientSide());
         }
@@ -255,14 +266,36 @@ public class EnderManiac extends Monster {
             this.TradeTimer--;
         }
 
-        if (this.balloonPos != null) {
+        if (this.TradeTimer == 0) {
+            for (int i = 0; i < this.pendingChorusCount; i++) {
+                ItemStack stack = new ItemStack(
+                        getTradeBalloonItems()[random.nextInt(getTradeBalloonItems().length)].asItem(),
+                        4);
+                net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(
+                        this.level(), getX(), getY() + 1.5, getZ(), stack);
+                Vec3 lookDirection = this.getLookAngle();
+                item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.05, 0.0,
+                        lookDirection.z + this.random.nextFloat() * 0.05);
+                this.level().addFreshEntity(item);
+            }
+            this.TradeTimer = -1;
+        }
+
+        if (this.balloonPos != null && !this.isTrading()) {
             this.getLookControl().setLookAt(
                     this.balloonPos.getX() + 0.5,
                     this.balloonPos.getY() + 0.5,
                     this.balloonPos.getZ() + 0.5,
                     30.0F, 30.0F);
+        } else if (this.isTrading() && this.TradeTimer > 0 || this.isRevealing()) {
+            this.getLookControl().setLookAt(
+                    this.tradedPlayer.getX(),
+                    this.tradedPlayer.getEyeY(),
+                    this.tradedPlayer.getZ(),
+                    30.0F, 30.0F);
         }
-        if (this.getEntityData().get(IS_REVEALING) && this.AnimationTimer > 0) {
+
+        if (this.isRevealed() && this.AnimationTimer > 0) {
             if (this.AnimationTimer == 240 && !this.level().isClientSide()) {
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                         com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(),
@@ -309,5 +342,12 @@ public class EnderManiac extends Monster {
 
             this.AnimationTimer = -1;
         }
+    }
+
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        return;
+
     }
 }
