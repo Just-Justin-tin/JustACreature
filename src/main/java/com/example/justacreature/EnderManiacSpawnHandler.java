@@ -34,6 +34,8 @@ public class EnderManiacSpawnHandler {
         return level.isLoaded(new BlockPos(blockX, 64, blockZ));
     }
 
+    private static boolean placingNaturally = false;
+
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
             BALLOON_BLOCKS = new Block[] {
@@ -134,7 +136,10 @@ public class EnderManiacSpawnHandler {
 
         Block[] balloons = getBalloonBlocks();
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
+
+        placingNaturally = true;
         serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
+        placingNaturally = false;
 
         BlockPos spawnPos = findGroundNear(serverLevel, balloonPos, chunkX, chunkZ);
         if (spawnPos == null)

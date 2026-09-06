@@ -87,6 +87,10 @@ public class EnderManiac extends Monster {
         this.entityData.set(CAN_LOOK_AT_PLAYER, canLookAtPlayer);
     }
 
+    public boolean canLookAtPlayer() {
+        return this.entityData.get(CAN_LOOK_AT_PLAYER);
+    }
+
     public boolean isRevealing() {
         return this.entityData.get(IS_REVEALING);
     }
@@ -101,10 +105,6 @@ public class EnderManiac extends Monster {
 
     public boolean isTrading() {
         return this.entityData.get(IS_TRADING);
-    }
-
-    public boolean canLookAtPlayer() {
-        return this.entityData.get(CAN_LOOK_AT_PLAYER);
     }
 
     public EnderManiac(EntityType<? extends Monster> type, Level level) {
@@ -144,7 +144,7 @@ public class EnderManiac extends Monster {
         builder.define(IS_DISGUISED, true);
         builder.define(HAS_REVEALED, false);
         builder.define(IS_TRADING, false);
-        builder.define(CAN_LOOK_AT_PLAYER, false);
+        builder.define(CAN_LOOK_AT_PLAYER, true);
     }
 
     @Override
@@ -155,6 +155,7 @@ public class EnderManiac extends Monster {
             this.setRevealed(false);
             this.setDisguised(false);
             this.setTrading(false);
+            this.setCanLookAtPlayer(false);
         }
 
         return super.hurt(source, amount);
@@ -186,6 +187,11 @@ public class EnderManiac extends Monster {
             tag.putInt("BalloonY", this.balloonPos.getY());
             tag.putInt("BalloonZ", this.balloonPos.getZ());
         }
+        tag.putBoolean("IsRevealing", this.entityData.get(IS_REVEALING));
+        tag.putBoolean("IsDisguised", this.entityData.get(IS_DISGUISED));
+        tag.putBoolean("HasRevealed", this.entityData.get(HAS_REVEALED));
+        tag.putBoolean("IsTrading", this.entityData.get(IS_TRADING));
+        tag.putBoolean("ForcedPersistent", this.forcedPersistent);
     }
 
     // look at balloon method
@@ -195,6 +201,11 @@ public class EnderManiac extends Monster {
         if (tag.contains("BalloonX")) {
             this.balloonPos = new BlockPos(tag.getInt("BalloonX"), tag.getInt("BalloonY"), tag.getInt("BalloonZ"));
         }
+        this.entityData.set(IS_REVEALING, tag.getBoolean("IsRevealing"));
+        this.entityData.set(IS_DISGUISED, tag.getBoolean("IsDisguised"));
+        this.entityData.set(HAS_REVEALED, tag.getBoolean("HasRevealed"));
+        this.entityData.set(IS_TRADING, tag.getBoolean("IsTrading"));
+        this.forcedPersistent = tag.getBoolean("ForcedPersistent");
     }
 
     @Override
@@ -262,6 +273,8 @@ public class EnderManiac extends Monster {
     public void tick() {
         super.tick();
 
+        Vec3 lookDirection = this.getLookAngle();
+
         if (this.TradeTimer > 0) {
             this.TradeTimer--;
         }
@@ -273,7 +286,7 @@ public class EnderManiac extends Monster {
                         4);
                 net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(
                         this.level(), getX(), getY() + 1.5, getZ(), stack);
-                Vec3 lookDirection = this.getLookAngle();
+
                 item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.05, 0.0,
                         lookDirection.z + this.random.nextFloat() * 0.05);
                 this.level().addFreshEntity(item);
@@ -346,8 +359,7 @@ public class EnderManiac extends Monster {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(1, new ConditionalLookAtPlayerGoal(this, Player.class, 8.0F));
         return;
-
     }
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 
 public class LostBalloon extends Block {
+
     public LostBalloon() {
         super(BlockBehaviour.Properties.of()
                 .mapColor(MapColor.COLOR_MAGENTA)
@@ -38,6 +39,7 @@ public class LostBalloon extends Block {
                 for (EnderManiac maniac : nearbyManiacs) {
                     maniac.setForcedPersistent(false);
                     maniac.setTrading(true);
+                    maniac.setCanLookAtPlayer(true);
                 }
 
             } else {
@@ -55,5 +57,13 @@ public class LostBalloon extends Block {
             }
         }
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+        super.onPlace(state, level, pos, oldState, isMoving);
+        if (!level.isClientSide() && EnderManiacSpawnHandler.placingNaturally) {
+            // this only runs during your own natural-generation call
+        }
     }
 }
