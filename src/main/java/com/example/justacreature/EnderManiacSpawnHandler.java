@@ -34,7 +34,7 @@ public class EnderManiacSpawnHandler {
         return level.isLoaded(new BlockPos(blockX, 64, blockZ));
     }
 
-    private static boolean placingNaturally = false;
+    public static boolean placingNaturally = false;
 
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
