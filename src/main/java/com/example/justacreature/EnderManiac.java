@@ -144,7 +144,7 @@ public class EnderManiac extends Monster {
         builder.define(IS_DISGUISED, true);
         builder.define(HAS_REVEALED, false);
         builder.define(IS_TRADING, false);
-        builder.define(CAN_LOOK_AT_PLAYER, true);
+        builder.define(CAN_LOOK_AT_PLAYER, false);
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,8 +34,6 @@ public class EnderManiacSpawnHandler {
     private static boolean isChunkLoaded(ServerLevel level, int blockX, int blockZ) {
         return level.isLoaded(new BlockPos(blockX, 64, blockZ));
     }
-
-    public static boolean placingNaturally = false;
 
     private static Block[] getBalloonBlocks() {
         if (BALLOON_BLOCKS == null) {
@@ -137,9 +136,8 @@ public class EnderManiacSpawnHandler {
         Block[] balloons = getBalloonBlocks();
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
 
-        placingNaturally = true;
-        serverLevel.setBlock(balloonPos, randomBalloon.defaultBlockState(), SILENT_PLACE_FLAGS);
-        placingNaturally = false;
+        BlockState naturalState = randomBalloon.defaultBlockState().setValue(LostBalloon.NATURALLY_GENERATED, true);
+        serverLevel.setBlock(balloonPos, naturalState, SILENT_PLACE_FLAGS);
 
         BlockPos spawnPos = findGroundNear(serverLevel, balloonPos, chunkX, chunkZ);
         if (spawnPos == null)

@@ -2,6 +2,13 @@
     "parent": "minecraft:block/cross",
     "render_type": "minecraft:cutout",
     "textures": {
-        "cross": "justacreature:block/lost_balloon"
+        "variants": {
+            "half=lower": {
+                "cross": "justacreature:block/lost_balloon_lower"
+            },
+            "half=upper": {
+                "cross": "justacreature:block/lost_balloon_upper"
+            }
+        }
     }
 }

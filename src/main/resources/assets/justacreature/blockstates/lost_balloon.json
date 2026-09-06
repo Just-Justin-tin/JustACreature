@@ -1,7 +1,10 @@
 {
     "variants": {
-        "": {
-            "model": "justacreature:block/lost_balloon"
+        "half=lower": {
+            "model": "justacreature:block/lost_balloon_lower"
+        },
+        "half=upper": {
+            "model": "justacreature:block/lost_balloon_upper"
         }
     }
 }
