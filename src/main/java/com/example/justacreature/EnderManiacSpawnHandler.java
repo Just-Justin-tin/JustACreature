@@ -145,9 +145,6 @@ public class EnderManiacSpawnHandler {
         serverLevel.setBlock(balloonPos, lowerState, SILENT_PLACE_FLAGS);
         serverLevel.setBlock(balloonPos.above(), upperState, SILENT_PLACE_FLAGS);
 
-        BlockState naturalState = randomBalloon.defaultBlockState().setValue(LostBalloon.NATURALLY_GENERATED, true);
-        serverLevel.setBlock(balloonPos, lowerState, SILENT_PLACE_FLAGS);
-
         BlockPos spawnPos = findGroundNear(serverLevel, balloonPos, chunkX, chunkZ);
         if (spawnPos == null)
             return;

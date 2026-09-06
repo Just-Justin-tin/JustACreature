@@ -35,8 +35,9 @@ public class LostBalloon extends Block {
                 .sound(net.minecraft.world.level.block.SoundType.CANDLE)
                 .noOcclusion()); // required for any non-full-cube model
 
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER));
-        this.registerDefaultState(this.stateDefinition.any().setValue(NATURALLY_GENERATED, false));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(NATURALLY_GENERATED, false));
     }
 
     @Override
