@@ -301,11 +301,13 @@ public class EnderManiac extends Monster {
                     this.balloonPos.getZ() + 0.5,
                     30.0F, 30.0F);
         } else if (this.isTrading() && this.TradeTimer > 0 || this.isRevealing()) {
-            this.getLookControl().setLookAt(
-                    this.tradedPlayer.getX(),
-                    this.tradedPlayer.getEyeY(),
-                    this.tradedPlayer.getZ(),
-                    30.0F, 30.0F);
+            if (this.tradedPlayer != null) {
+                this.getLookControl().setLookAt(
+                        this.tradedPlayer.getX(),
+                        this.tradedPlayer.getEyeY(),
+                        this.tradedPlayer.getZ(),
+                        30.0F, 30.0F);
+            }
         }
 
         if (this.isRevealed() && this.AnimationTimer > 0) {

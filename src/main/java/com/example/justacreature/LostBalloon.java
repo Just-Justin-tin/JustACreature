@@ -51,30 +51,33 @@ public class LostBalloon extends Block {
                     .anyMatch(h -> h.is(EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING));
 
             if (hasSilkTouch) {
-                Block.popResource(level, pos, new ItemStack(this.asItem()));
+                if (!player.isCreative()) {
+                    Block.popResource(level, pos, new ItemStack(this.asItem()));
+                }
+
                 if (state.getValue(NATURALLY_GENERATED)) {
                     net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(20.0D);
                     java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
 
                     for (EnderManiac maniac : nearbyManiacs) {
                         maniac.setForcedPersistent(false);
-                        maniac.setTrading(true);
+                        maniac.setTrading(false);
                         maniac.setCanLookAtPlayer(true);
                     }
                 }
 
-            } else {
-                if (state.getValue(NATURALLY_GENERATED)) {
-                    // Search in a 10-block radius around the balloon
-                    net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(20.0D);
-                    java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
+            } else if (state.getValue(NATURALLY_GENERATED)) {
 
-                    for (EnderManiac maniac : nearbyManiacs) {
-                        if (!maniac.isTrading() && state.getValue(NATURALLY_GENERATED)) {
-                            maniac.setForcedPersistent(false);
-                            maniac.setRevealed(true); // Triggers the synced data change
-                            maniac.setDisguised(false); // Optional: turn off the disguise state
-                        }
+                // Search in a 10-block radius around the balloon
+                net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(20.0D);
+                java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
+
+                for (EnderManiac maniac : nearbyManiacs) {
+                    if (!maniac.isTrading()) {
+                        maniac.setForcedPersistent(false);
+                        maniac.setRevealed(true); // Triggers the synced data change
+                        maniac.setDisguised(false); // Optional: turn off the disguise state
+
                     }
                 }
             }
