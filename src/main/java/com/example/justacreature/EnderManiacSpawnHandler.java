@@ -6,6 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -123,7 +124,7 @@ public class EnderManiacSpawnHandler {
                 if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
                         && serverLevel.getBlockState(pos.below()).isAir()
                         && serverLevel.getBlockState(pos.below().below()).isAir()) {
-                    balloonPos = pos.below();
+                    balloonPos = pos.below().below();
                     break;
                 }
             }
@@ -136,9 +137,16 @@ public class EnderManiacSpawnHandler {
 
         Block[] balloons = getBalloonBlocks();
         Block randomBalloon = balloons[serverLevel.getRandom().nextInt(balloons.length)];
+        BlockState lowerState = randomBalloon.defaultBlockState().setValue(LostBalloon.HALF, DoubleBlockHalf.LOWER)
+                .setValue(LostBalloon.NATURALLY_GENERATED, true);
+        BlockState upperState = randomBalloon.defaultBlockState().setValue(LostBalloon.HALF, DoubleBlockHalf.UPPER)
+                .setValue(LostBalloon.NATURALLY_GENERATED, true);
+
+        serverLevel.setBlock(balloonPos, lowerState, SILENT_PLACE_FLAGS);
+        serverLevel.setBlock(balloonPos.above(), upperState, SILENT_PLACE_FLAGS);
 
         BlockState naturalState = randomBalloon.defaultBlockState().setValue(LostBalloon.NATURALLY_GENERATED, true);
-        serverLevel.setBlock(balloonPos, naturalState, SILENT_PLACE_FLAGS);
+        serverLevel.setBlock(balloonPos, lowerState, SILENT_PLACE_FLAGS);
 
         BlockPos spawnPos = findGroundNear(serverLevel, balloonPos, chunkX, chunkZ);
         if (spawnPos == null)
