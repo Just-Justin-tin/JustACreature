@@ -32,7 +32,7 @@ public class LostBalloon extends Block {
                 .mapColor(MapColor.COLOR_MAGENTA)
                 .noCollission() // remove if you want players to bump into it
                 .strength(4.0F)
-                .sound(net.minecraft.world.level.block.SoundType.WOOL)
+                .sound(net.minecraft.world.level.block.SoundType.CANDLE)
                 .noOcclusion()); // required for any non-full-cube model
 
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, DoubleBlockHalf.LOWER));
@@ -42,7 +42,8 @@ public class LostBalloon extends Block {
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state,
             net.minecraft.world.entity.player.Player player) {
-        if (!level.isClientSide && state.getValue(HALF) == DoubleBlockHalf.LOWER) {
+        if (!level.isClientSide
+                && (state.getValue(HALF) == DoubleBlockHalf.LOWER || state.getValue(HALF) == DoubleBlockHalf.UPPER)) {
             ItemStack tool = player.getMainHandItem();
             var enchantments = tool.get(DataComponents.ENCHANTMENTS);
             boolean hasSilkTouch = enchantments != null && enchantments.keySet().stream()
@@ -68,7 +69,7 @@ public class LostBalloon extends Block {
                     java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
 
                     for (EnderManiac maniac : nearbyManiacs) {
-                        if (!maniac.isTrading() && !state.getValue(NATURALLY_GENERATED)) {
+                        if (!maniac.isTrading() && state.getValue(NATURALLY_GENERATED)) {
                             maniac.setForcedPersistent(false);
                             maniac.setRevealed(true); // Triggers the synced data change
                             maniac.setDisguised(false); // Optional: turn off the disguise state
@@ -94,7 +95,7 @@ public class LostBalloon extends Block {
     }
 
     @Override
-    protected void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
             ItemStack stack) {
         level.setBlock(pos.above(), state.setValue(HALF, DoubleBlockHalf.UPPER), 3);
     }
@@ -106,7 +107,7 @@ public class LostBalloon extends Block {
             BlockPos otherPos = half == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
             BlockState otherState = level.getBlockState(otherPos);
             if (otherState.is(this) && otherState.getValue(HALF) != half) {
-                level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), 35);
+                level.setBlock(otherPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 35);
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);
@@ -115,5 +116,6 @@ public class LostBalloon extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(NATURALLY_GENERATED);
+        builder.add(HALF);
     }
 }

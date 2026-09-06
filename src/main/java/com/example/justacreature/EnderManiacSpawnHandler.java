@@ -121,7 +121,8 @@ public class EnderManiacSpawnHandler {
                 BlockPos pos = new BlockPos(rx, y, rz);
                 Block b = serverLevel.getBlockState(pos).getBlock();
                 if ((b == Blocks.CHORUS_PLANT || b == Blocks.CHORUS_FLOWER)
-                        && serverLevel.getBlockState(pos.below()).isAir()) {
+                        && serverLevel.getBlockState(pos.below()).isAir()
+                        && serverLevel.getBlockState(pos.below().below()).isAir()) {
                     balloonPos = pos.below();
                     break;
                 }
