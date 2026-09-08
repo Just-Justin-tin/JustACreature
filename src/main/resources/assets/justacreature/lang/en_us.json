@@ -1,6 +1,6 @@
 {
     "itemGroup.justacreature": "Just A Creature",
-    "item.justacreature.bosambo_egg": "Bosambo Egg",
+    "block.justacreature.bosambo_egg": "Bosambo Egg",
     "item.justacreature.crystalline_melon_slice": "Crystalline Melon Slice",
     "item.justacreature.shiny_seeds": "Shiny Seeds",
     "block.justacreature.deepslate_tungsten_ore": "Deepslate Tungsten Ore",
@@ -9,5 +9,23 @@
     "item.justacreature.tungsten_ingot": "Tungsten Ingot",
     "item.justacreature.raw_tungsten": "Raw Tungsten",
     "block.justacreature.crystalline_melon": "Crystalline Melon",
-    "item.justacreature.bosambo_spawn_egg": "Bosambo Spawn Egg"
+    "item.justacreature.creature_bosambo_spawn_egg": "Bosambo Spawn Egg",
+    "item.justacreature.bosambo_saddle": "Bosambo Saddle",
+    "block.justacreature.lost_balloon": "Lost Balloon",
+    "block.justacreature.red_balloon": "Red Balloon",
+    "block.justacreature.white_balloon": "White Balloon",
+    "block.justacreature.blue_balloon": "Blue Balloon",
+    "block.justacreature.green_balloon": "Green Balloon",
+    "block.justacreature.yellow_balloon": "Yellow Balloon",
+    "block.justacreature.magenta_balloon": "Magenta Balloon",
+    "block.justacreature.orange_balloon": "Orange Balloon",
+    "block.justacreature.pink_balloon": "Pink Balloon",
+    "block.justacreature.cyan_balloon": "Cyan Balloon",
+    "block.justacreature.purple_balloon": "Purple Balloon",
+    "block.justacreature.gray_balloon": "Gray Balloon",
+    "block.justacreature.light_blue_balloon": "Light Blue Balloon",
+    "block.justacreature.lime_balloon": "Lime Balloon",
+    "block.justacreature.brown_balloon": "Brown Balloon",
+    "block.justacreature.black_balloon": "Black Balloon",
+    "block.justacreature.light_gray_balloon": "Light Gray Balloon"
 }

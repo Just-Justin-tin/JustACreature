@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 import java.util.EnumSet;
 
 public class SleepNearLavaGoal extends Goal {
-    private final CreatureBosambo bosambo;
+    private final Bosambo bosambo;
     private BlockPos targetLavaPos = null;
     private BlockPos targetSleepPos = null;
     private int layDownTimer = 0;
@@ -16,7 +16,7 @@ public class SleepNearLavaGoal extends Goal {
     private int walkingTimeout = 0;
     private int standUpTimer = 0;
 
-    public SleepNearLavaGoal(CreatureBosambo bosambo) {
+    public SleepNearLavaGoal(Bosambo bosambo) {
         this.bosambo = bosambo;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }

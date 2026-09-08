@@ -1,6 +1,6 @@
 package com.example.justacreature.client.model;
 
-import com.example.justacreature.CreatureBosambo;
+import com.example.justacreature.Bosambo;
 import com.example.justacreature.JustaCreature;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -15,7 +15,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.model.HierarchicalModel;
 
-public class BosamboModel extends HierarchicalModel<CreatureBosambo> {
+public class BosamboModel extends HierarchicalModel<Bosambo> {
         public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
                         ResourceLocation.fromNamespaceAndPath(JustaCreature.MODID, "bosambomodel"), "main");
         private final ModelPart legfrontleft;
@@ -127,7 +127,7 @@ public class BosamboModel extends HierarchicalModel<CreatureBosambo> {
         }
 
         @Override
-        public void setupAnim(CreatureBosambo entity, float limbSwing, float limbSwingAmount, float ageInTicks,
+        public void setupAnim(Bosambo entity, float limbSwing, float limbSwingAmount, float ageInTicks,
                         float netHeadYaw, float headPitch) {
                 this.root().getAllParts().forEach(ModelPart::resetPose);
                 this.animateWalk(BosamboModelAnimations.walk, limbSwing, limbSwingAmount, 8.0F, 5.0F);

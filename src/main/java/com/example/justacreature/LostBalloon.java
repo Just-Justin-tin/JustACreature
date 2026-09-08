@@ -33,7 +33,9 @@ public class LostBalloon extends Block {
                 .noCollission() // remove if you want players to bump into it
                 .strength(4.0F)
                 .sound(net.minecraft.world.level.block.SoundType.CANDLE)
-                .noOcclusion()); // required for any non-full-cube model
+                .noOcclusion() // required for any non-full-cube model
+                .noLootTable()
+                .strength(0.5F, 0.0F));
 
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HALF, DoubleBlockHalf.LOWER)
@@ -66,18 +68,19 @@ public class LostBalloon extends Block {
                     }
                 }
 
-            } else if (state.getValue(NATURALLY_GENERATED)) {
+            } else {
+                if (state.getValue(NATURALLY_GENERATED)) {
+                    // Search in a 10-block radius around the balloon
+                    net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(20.0D);
+                    java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
 
-                // Search in a 10-block radius around the balloon
-                net.minecraft.world.phys.AABB searchBox = new net.minecraft.world.phys.AABB(pos).inflate(20.0D);
-                java.util.List<EnderManiac> nearbyManiacs = level.getEntitiesOfClass(EnderManiac.class, searchBox);
-
-                for (EnderManiac maniac : nearbyManiacs) {
-                    if (!maniac.isTrading()) {
-                        maniac.setForcedPersistent(false);
-                        maniac.setRevealed(true); // Triggers the synced data change
-                        maniac.setDisguised(false); // Optional: turn off the disguise state
-
+                    for (EnderManiac maniac : nearbyManiacs) {
+                        if (!maniac.isTrading()) {
+                            maniac.setForcedPersistent(false);
+                            maniac.setRevealed(true); // Triggers the synced data change
+                            maniac.setDisguised(false); // Optional: turn off the disguise state
+                            maniac.setCanLookAtPlayer(true);
+                        }
                     }
                 }
             }

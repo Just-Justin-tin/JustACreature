@@ -10,4 +10,9 @@ public class BouncyBall extends Slime {
         super(type, level);
 
     }
+
+    @Override
+    protected boolean spawnCustomParticles() {
+        return true;
+    }
 }

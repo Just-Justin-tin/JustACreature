@@ -1,6 +1,6 @@
 package com.example.justacreature.client.model;
 
-import com.example.justacreature.CreatureBosambo;
+import com.example.justacreature.Bosambo;
 import com.example.justacreature.JustaCreature;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

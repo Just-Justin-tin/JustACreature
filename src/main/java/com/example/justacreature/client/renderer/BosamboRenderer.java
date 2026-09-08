@@ -1,13 +1,13 @@
 package com.example.justacreature.client.renderer;
 
-import com.example.justacreature.CreatureBosambo;
+import com.example.justacreature.Bosambo;
 import com.example.justacreature.JustaCreature;
 import com.example.justacreature.client.model.BosamboModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
-public class BosamboRenderer extends MobRenderer<CreatureBosambo, BosamboModel> {
+public class BosamboRenderer extends MobRenderer<Bosambo, BosamboModel> {
     // This connects to
     // src/main/resources/assets/justacreature/textures/entity/bosambotexture.png
     // 1. Define your normal awake texture
@@ -26,7 +26,7 @@ public class BosamboRenderer extends MobRenderer<CreatureBosambo, BosamboModel> 
     }
 
     @Override
-    public ResourceLocation getTextureLocation(CreatureBosambo entity) {
+    public ResourceLocation getTextureLocation(Bosambo entity) {
         // 3. Check our custom synced data! If it is laying down or sleeping, return the
         // sleep texture.
         if (entity.isSleeping()) {

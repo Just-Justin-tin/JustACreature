@@ -20,11 +20,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreatureBosambo extends Sniffer {
+public class Bosambo extends Sniffer {
 
     // 1. The ID for syncing across the network
     private static final EntityDataAccessor<Boolean> IS_DIGGING_BOSAMBO = SynchedEntityData
-            .defineId(CreatureBosambo.class, EntityDataSerializers.BOOLEAN);
+            .defineId(Bosambo.class, EntityDataSerializers.BOOLEAN);
 
     public int digAnimationTick = 0;
     public int walkSoundTick = 0;
@@ -37,19 +37,19 @@ public class CreatureBosambo extends Sniffer {
             Blocks.DEEPSLATE, Blocks.OBSIDIAN, Blocks.ANDESITE,
             Blocks.DIORITE, Blocks.GRANITE, Blocks.TUFF);
 
-    public CreatureBosambo(EntityType<? extends Sniffer> pEntityType, Level pLevel) {
+    public Bosambo(EntityType<? extends Sniffer> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
     // 1. New Entity Data Accessors
     private static final EntityDataAccessor<Boolean> IS_LAYING = SynchedEntityData
-            .defineId(CreatureBosambo.class, EntityDataSerializers.BOOLEAN);
+            .defineId(Bosambo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SLEEPING = SynchedEntityData
-            .defineId(CreatureBosambo.class, EntityDataSerializers.BOOLEAN);
+            .defineId(Bosambo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_STANDING = SynchedEntityData
-            .defineId(CreatureBosambo.class, EntityDataSerializers.BOOLEAN);
+            .defineId(Bosambo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SADDLED = SynchedEntityData
-            .defineId(CreatureBosambo.class, EntityDataSerializers.BOOLEAN);
+            .defineId(Bosambo.class, EntityDataSerializers.BOOLEAN);
 
     // 2. New Animation States
     public final AnimationState layAnimationState = new AnimationState();

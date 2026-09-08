@@ -205,6 +205,7 @@ public class EnderManiac extends Monster {
         this.entityData.set(IS_DISGUISED, tag.getBoolean("IsDisguised"));
         this.entityData.set(HAS_REVEALED, tag.getBoolean("HasRevealed"));
         this.entityData.set(IS_TRADING, tag.getBoolean("IsTrading"));
+        this.entityData.set(CAN_LOOK_AT_PLAYER, tag.getBoolean("CanLookAtPlayer"));
         this.forcedPersistent = tag.getBoolean("ForcedPersistent");
     }
 
@@ -273,8 +274,6 @@ public class EnderManiac extends Monster {
     public void tick() {
         super.tick();
 
-        Vec3 lookDirection = this.getLookAngle();
-
         if (this.TradeTimer > 0) {
             this.TradeTimer--;
         }
@@ -287,20 +286,27 @@ public class EnderManiac extends Monster {
                 net.minecraft.world.entity.item.ItemEntity item = new net.minecraft.world.entity.item.ItemEntity(
                         this.level(), getX(), getY() + 1.5, getZ(), stack);
 
-                item.setDeltaMovement(lookDirection.x + this.random.nextFloat() * 0.05, 0.0,
-                        lookDirection.z + this.random.nextFloat() * 0.05);
-                this.level().addFreshEntity(item);
+                if (this.tradedPlayer != null) {
+                    Vec3 toPlayer = this.tradedPlayer.position()
+                            .subtract(this.position())
+                            .normalize();
+
+                    item.setDeltaMovement(toPlayer.x * 0.3 + this.random.nextFloat() * 0.05,
+                            0.25, // small upward arc so it lands near the player instead of skimming flat
+                            toPlayer.z * 0.3 + this.random.nextFloat() * 0.05);
+                    this.level().addFreshEntity(item);
+                }
             }
             this.TradeTimer = -1;
         }
 
-        if (this.balloonPos != null && !this.isTrading()) {
+        if (this.balloonPos != null && !this.isTrading() && !this.canLookAtPlayer()) {
             this.getLookControl().setLookAt(
                     this.balloonPos.getX() + 0.5,
                     this.balloonPos.getY() + 0.5,
                     this.balloonPos.getZ() + 0.5,
                     30.0F, 30.0F);
-        } else if (this.isTrading() && this.TradeTimer > 0 || this.isRevealing()) {
+        } else if (this.isTrading() && this.TradeTimer > 0) {
             if (this.tradedPlayer != null) {
                 this.getLookControl().setLookAt(
                         this.tradedPlayer.getX(),
@@ -310,7 +316,7 @@ public class EnderManiac extends Monster {
             }
         }
 
-        if (this.isRevealed() && this.AnimationTimer > 0) {
+        if (this.entityData.get(IS_REVEALING) && this.AnimationTimer > 0) {
             if (this.AnimationTimer == 240 && !this.level().isClientSide()) {
                 this.level().playSound(null, this.getX(), this.getY(), this.getZ(),
                         com.example.justacreature.JustaCreature.ENDERMANIAC_REVEAL.get(),

@@ -98,7 +98,7 @@ public class BosamboEggBlock extends Block {
                             0.9F + random.nextFloat() * 0.2F);
                     level.destroyBlock(pos, false);
 
-                    CreatureBosambo bosambo = JustaCreatureMobs.CREATURE_BOSAMBO.get().create(level);
+                    Bosambo bosambo = JustaCreatureMobs.CREATURE_BOSAMBO.get().create(level);
                     if (bosambo != null) {
                         bosambo.setAge(-24000); // Make it a baby
                         bosambo.moveTo((double) pos.getX() + 0.5D, (double) pos.getY(), (double) pos.getZ() + 0.5D,

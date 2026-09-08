@@ -29,9 +29,9 @@ public class JustaCreatureMobs {
         public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM,
                         JustaCreature.MODID);
 
-        public static final DeferredHolder<EntityType<?>, EntityType<CreatureBosambo>> CREATURE_BOSAMBO = ENTITY_TYPES
+        public static final DeferredHolder<EntityType<?>, EntityType<Bosambo>> CREATURE_BOSAMBO = ENTITY_TYPES
                         .register("creature_bosambo",
-                                        () -> EntityType.Builder.of(CreatureBosambo::new, MobCategory.CREATURE)
+                                        () -> EntityType.Builder.of(Bosambo::new, MobCategory.CREATURE)
                                                         .sized(3.5F, 3.0F)
                                                         .clientTrackingRange(10)
                                                         .fireImmune()
@@ -57,7 +57,7 @@ public class JustaCreatureMobs {
                         .register("blue_endermaniac",
                                         () -> EntityType.Builder.of(blue_Endermaniac::new, MobCategory.MONSTER)
                                                         .sized(0.5F, 2.0F)
-                                                        .clientTrackingRange(10)
+                                                        .clientTrackingRange(30)
                                                         .fireImmune()
                                                         .build("blue_endermaniac"));
 
@@ -115,7 +115,7 @@ public class JustaCreatureMobs {
                                                         .build("pin_projectile"));
 
         public static final DeferredHolder<Item, Item> BOSAMBO_SPAWN_EGG = ITEMS.register("creature_bosambo_spawn_egg",
-                        () -> new DeferredSpawnEggItem(CREATURE_BOSAMBO, 0x8A3A35, 0x219C4A, new Item.Properties()));
+                        () -> new DeferredSpawnEggItem(CREATURE_BOSAMBO, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
         @SubscribeEvent
         public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
@@ -160,15 +160,18 @@ public class JustaCreatureMobs {
                                 .add(Attributes.MAX_HEALTH, 1.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                                 .add(Attributes.ATTACK_DAMAGE, 4.0D)
+                                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.0D)
                                 .build());
 
                 event.put(BALLOON_CREEPER.get(), Creeper.createAttributes()
                                 .add(Attributes.MAX_HEALTH, 1.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.0D)
                                 .build());
 
                 event.put(BALLOON_GHAST.get(), Ghast.createAttributes()
                                 .add(Attributes.MAX_HEALTH, 1.0D)
+                                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.0D)
                                 .build());
 
                 event.put(BALLOON_BEE.get(), Bee.createAttributes()
@@ -176,9 +179,12 @@ public class JustaCreatureMobs {
                                 .add(Attributes.FLYING_SPEED, 1.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.3D)
                                 .add(Attributes.ATTACK_DAMAGE, 2.0D)
+                                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0.0D)
                                 .build());
 
                 event.put(BOUNCY_BALL.get(), Monster.createMonsterAttributes()
+                                .add(Attributes.MOVEMENT_SPEED, 3.0F)
+                                .add(Attributes.JUMP_STRENGTH, 4.5F)
                                 .build());
         }
 

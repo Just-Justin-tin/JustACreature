@@ -1,12 +1,14 @@
 {
     "type": "minecraft:blasting",
     "category": "misc",
-    "ingredient": {
-        "item": [
-            "justacreature:raw_tungsten",
-            "justacreature:deepslate_tungsten_ore"
-        ]
-    },
+    "ingredient": [
+        {
+            "item": "justacreature:raw_tungsten"
+        },
+        {
+            "item": "justacreature:deepslate_tungsten_ore"
+        }
+    ],
     "result": {
         "id": "justacreature:tungsten_ingot"
     },
