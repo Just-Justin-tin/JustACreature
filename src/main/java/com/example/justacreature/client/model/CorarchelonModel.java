@@ -16,6 +16,7 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import com.example.justacreature.Corarchelon;
 
 public class CorarchelonModel extends HierarchicalModel<Corarchelon> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
@@ -36,6 +37,7 @@ public class CorarchelonModel extends HierarchicalModel<Corarchelon> {
 	private final ModelPart fin6;
 
 	public CorarchelonModel(ModelPart root) {
+		this.root = root;
 		this.Chorarchelon = root.getChild("Chorarchelon");
 		this.Shell = this.Chorarchelon.getChild("Shell");
 		this.Head = this.Chorarchelon.getChild("Head");

@@ -23,6 +23,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
 
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class JustaCreatureMobs {
@@ -116,9 +117,9 @@ public class JustaCreatureMobs {
                                                         .updateInterval(10)
                                                         .build("pin_projectile"));
 
-        public static final DeferredHolder<EntityType<?>, EntityType<CorarchelonModel>> CORARCHELON = ENTITY_TYPES
+        public static final DeferredHolder<EntityType<?>, EntityType<Corarchelon>> CORARCHELON = ENTITY_TYPES
                         .register("corarchelon",
-                                        () -> EntityType.Builder.of(CorarchelonModel::new, MobCategory.MONSTER)
+                                        () -> EntityType.Builder.of(Corarchelon::new, MobCategory.CREATURE)
                                                         .sized(12.0F, 8.0F)
                                                         .clientTrackingRange(10)
                                                         .build("corarchelon"));
