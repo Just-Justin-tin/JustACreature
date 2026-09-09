@@ -216,6 +216,15 @@ public class JustaCreature {
                         "bosambo_egg",
                         BOSAMBO_EGG_BLOCK);
 
+        public static final DeferredHolder<Block, Block> CORARCHELON_EGG_BLOCK = BLOCKS.register("corarchelon_egg",
+                        () -> new CorarchelonEggBlock(
+                                        BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(0.5F)
+                                                        .randomTicks().noOcclusion()));
+
+        public static final DeferredItem<BlockItem> CORARCHELON_EGG_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(
+                        "corarchelon_egg",
+                        CORARCHELON_EGG_BLOCK);
+
         public static final DeferredItem<Item> CRYSTALLINE_MELON_SLICE = ITEMS
                         .registerSimpleItem("crystalline_melon_slice");
 
@@ -227,8 +236,10 @@ public class JustaCreature {
                                         .displayItems((parameters, output) -> {
                                                 output.accept(JustaCreatureMobs.BOSAMBO_SPAWN_EGG.get());
                                                 output.accept(BOSAMBO_EGG_BLOCK_ITEM.get());
-                                                output.accept(CRYSTALLINE_MELON_SLICE.get());
+                                                output.accept(JustaCreatureMobs.CORARCHELON_SPAWN_EGG.get());
+                                                output.accept(CORARCHELON_EGG_BLOCK_ITEM.get());
                                                 output.accept(SHINY_SEEDS.get());
+                                                output.accept(CRYSTALLINE_MELON_SLICE.get());
                                                 output.accept(CRYSTALLINE_MELON_ITEM.get());
                                                 output.accept(TUNGSTEN_INGOT.get());
                                                 output.accept(RAW_TUNGSTEN.get());

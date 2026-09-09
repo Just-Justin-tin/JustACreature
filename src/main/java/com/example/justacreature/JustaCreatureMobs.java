@@ -1,7 +1,6 @@
 package com.example.justacreature;
 
 import com.example.justacreature.client.model.CorarchelonModel;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -24,6 +23,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Turtle;
 
 @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class JustaCreatureMobs {
@@ -204,7 +204,7 @@ public class JustaCreatureMobs {
                                 .add(Attributes.MAX_HEALTH, 500.0D)
                                 .add(Attributes.ATTACK_DAMAGE, 0.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
-                                .add(Attributes.WATER_MOVEMENT_EFFICIENCY, 2.0D)
+                                .add(Attributes.WATER_MOVEMENT_EFFICIENCY, 1.2D)
                                 .build());
         }
 
