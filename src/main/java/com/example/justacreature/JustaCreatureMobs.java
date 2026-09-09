@@ -120,7 +120,7 @@ public class JustaCreatureMobs {
         public static final DeferredHolder<EntityType<?>, EntityType<Corarchelon>> CORARCHELON = ENTITY_TYPES
                         .register("corarchelon",
                                         () -> EntityType.Builder.of(Corarchelon::new, MobCategory.CREATURE)
-                                                        .sized(12.0F, 8.0F)
+                                                        .sized(6.0F, 2.0F)
                                                         .clientTrackingRange(10)
                                                         .build("corarchelon"));
 
@@ -204,6 +204,7 @@ public class JustaCreatureMobs {
                                 .add(Attributes.MAX_HEALTH, 500.0D)
                                 .add(Attributes.ATTACK_DAMAGE, 0.0D)
                                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                                .add(Attributes.WATER_MOVEMENT_EFFICIENCY, 2.0D)
                                 .build());
         }
 

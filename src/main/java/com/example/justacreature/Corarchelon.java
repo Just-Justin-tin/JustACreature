@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +35,16 @@ public class Corarchelon extends Animal {
 
     @Override
     protected void registerGoals() {
+
         super.registerGoals();
+    }
+
+    @Override
+    public boolean canDrownInFluidType(net.neoforged.neoforge.fluids.FluidType type) {
+        if (type == net.neoforged.neoforge.common.NeoForgeMod.WATER_TYPE.value()) {
+            return false; // never drowns in water specifically
+        }
+        return super.canDrownInFluidType(type);
     }
 
     public final AnimationState shakeAnimationState = new AnimationState();

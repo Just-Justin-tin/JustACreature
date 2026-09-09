@@ -22,9 +22,9 @@ public class CorarchelonRenderer extends MobRenderer<Corarchelon, CorarchelonMod
 
     // We use a totally invisible PNG for the base so our Color Layer handles
     // everything cleanly
-    private static final ResourceLocation bouncy_ball_texture = ResourceLocation.fromNamespaceAndPath(
+    private static final ResourceLocation corarchelon_texture = ResourceLocation.fromNamespaceAndPath(
             JustaCreature.MODID,
-            "textures/entity/bouncyball.png");
+            "textures/entity/corarchelon.png");
 
     public CorarchelonRenderer(EntityRendererProvider.Context context) {
         super(context, new CorarchelonModel(context.bakeLayer(CorarchelonModel.LAYER_LOCATION)), 0.5f);
@@ -32,6 +32,6 @@ public class CorarchelonRenderer extends MobRenderer<Corarchelon, CorarchelonMod
 
     @Override
     public ResourceLocation getTextureLocation(Corarchelon entity) {
-        return bouncy_ball_texture;
+        return corarchelon_texture;
     }
 }
