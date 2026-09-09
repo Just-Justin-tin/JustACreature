@@ -1,5 +1,7 @@
 package com.example.justacreature;
 
+import com.example.justacreature.client.model.CorarchelonModel;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -114,8 +116,18 @@ public class JustaCreatureMobs {
                                                         .updateInterval(10)
                                                         .build("pin_projectile"));
 
+        public static final DeferredHolder<EntityType<?>, EntityType<CorarchelonModel>> CORARCHELON = ENTITY_TYPES
+                        .register("corarchelon",
+                                        () -> EntityType.Builder.of(CorarchelonModel::new, MobCategory.MONSTER)
+                                                        .sized(12.0F, 8.0F)
+                                                        .clientTrackingRange(10)
+                                                        .build("corarchelon"));
+
         public static final DeferredHolder<Item, Item> BOSAMBO_SPAWN_EGG = ITEMS.register("creature_bosambo_spawn_egg",
                         () -> new DeferredSpawnEggItem(CREATURE_BOSAMBO, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+
+        public static final DeferredHolder<Item, Item> CORARCHELON_SPAWN_EGG = ITEMS.register("corarchelon_spawn_egg",
+                        () -> new DeferredSpawnEggItem(CORARCHELON, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
         @SubscribeEvent
         public static void registerEntityAttributes(EntityAttributeCreationEvent event) {
@@ -186,6 +198,12 @@ public class JustaCreatureMobs {
                                 .add(Attributes.MOVEMENT_SPEED, 3.0F)
                                 .add(Attributes.JUMP_STRENGTH, 4.5F)
                                 .build());
+
+                event.put(CORARCHELON.get(), Monster.createMonsterAttributes()
+                                .add(Attributes.MAX_HEALTH, 500.0D)
+                                .add(Attributes.ATTACK_DAMAGE, 0.0D)
+                                .add(Attributes.MOVEMENT_SPEED, 0.25D)
+                                .build());
         }
 
         @EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -224,6 +242,9 @@ public class JustaCreatureMobs {
 
                         event.registerEntityRenderer(BOUNCY_BALL.get(),
                                         com.example.justacreature.client.renderer.BouncyBallRenderer::new);
+
+                        event.registerEntityRenderer(CORARCHELON.get(),
+                                        com.example.justacreature.client.renderer.CorarchelonRenderer::new);
                 }
 
                 @SubscribeEvent
@@ -251,6 +272,10 @@ public class JustaCreatureMobs {
                         event.registerLayerDefinition(
                                         com.example.justacreature.client.model.PinProjectileModel.LAYER_LOCATION,
                                         com.example.justacreature.client.model.PinProjectileModel::createBodyLayer);
+
+                        event.registerLayerDefinition(
+                                        com.example.justacreature.client.model.CorarchelonModel.LAYER_LOCATION,
+                                        com.example.justacreature.client.model.CorarchelonModel::createBodyLayer);
                 }
         }
 }
