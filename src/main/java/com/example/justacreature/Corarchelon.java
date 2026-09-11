@@ -41,6 +41,12 @@ public class Corarchelon extends Turtle {
             .defineId(Corarchelon.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SHAKING = SynchedEntityData
             .defineId(Corarchelon.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> IS_LAYING = SynchedEntityData
+            .defineId(Corarchelon.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DIGGING_TICKS = SynchedEntityData
+            .defineId(Corarchelon.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> IS_HAS_EGG = SynchedEntityData
+            .defineId(Corarchelon.class, EntityDataSerializers.BOOLEAN);
 
     public final AnimationState shakeAnimationState = new AnimationState();
     public final AnimationState idleAnimationState = new AnimationState();
@@ -74,6 +80,8 @@ public class Corarchelon extends Turtle {
         super.defineSynchedData(builder);
         builder.define(IS_EATING, false);
         builder.define(IS_SHAKING, false);
+        builder.define(IS_LAYING, false);
+        builder.define(IS_HAS_EGG, false);
     }
 
     public boolean isEating() {
@@ -84,12 +92,36 @@ public class Corarchelon extends Turtle {
         return this.entityData.get(IS_SHAKING);
     }
 
+    public boolean isLaying() {
+        return this.entityData.get(IS_LAYING);
+    }
+
     public void setEating(boolean eating) {
         this.entityData.set(IS_EATING, eating);
     }
 
     public void setShaking(boolean shaking) {
         this.entityData.set(IS_SHAKING, shaking);
+    }
+
+    public void setLaying(boolean laying) {
+        this.entityData.set(IS_LAYING, laying);
+    }
+
+    public int getDiggingTicks() {
+        return this.entityData.get(DIGGING_TICKS);
+    }
+
+    public void setDiggingTicks(int diggingTicks) {
+        this.entityData.set(DIGGING_TICKS, diggingTicks);
+    }
+
+    public boolean hasEgg() {
+        return this.entityData.get(IS_HAS_EGG);
+    }
+
+    public void setHasEgg(boolean hasEgg) {
+        this.entityData.set(IS_HAS_EGG, hasEgg);
     }
 
     @Override

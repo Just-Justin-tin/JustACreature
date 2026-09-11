@@ -24,22 +24,22 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
 
-public class CorarchelonEggBlock extends Block {
+public class CorarchelonEgg extends Block {
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
 
     public static final BooleanProperty WATERLOGGED = BooleanProperty.create("waterlogged");
 
     private static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
 
-    public CorarchelonEggBlock(BlockBehaviour.Properties properties) {
+    public CorarchelonEgg(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(HATCH, Integer.valueOf(0)));
     }
 
-    public static final MapCodec<CorarchelonEggBlock> CODEC = simpleCodec(CorarchelonEggBlock::new);
+    public static final MapCodec<CorarchelonEgg> CODEC = simpleCodec(CorarchelonEgg::new);
 
     @Override
-    protected MapCodec<CorarchelonEggBlock> codec() {
+    protected MapCodec<CorarchelonEgg> codec() {
         return CODEC;
     }
 
