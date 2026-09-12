@@ -32,11 +32,11 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Turtle;
 
-public class Corarchelon extends Animal {
+public class Corarchelon extends Turtle {
 
-    public Corarchelon(EntityType<? extends Animal> entityType, Level level) {
+    public Corarchelon(EntityType<? extends Turtle> entityType, Level level) {
         super(entityType, level);
     }
 
