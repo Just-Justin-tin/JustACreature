@@ -38,17 +38,21 @@ public class CorarchelonLayEggGoal extends MoveToBlockGoal {
             this.corarchelon.setLaying(false);
         } else if (!this.corarchelon.isLaying()) {
             this.corarchelon.setLaying(true);
-        } else if (this.corarchelon.getDiggingTicks() > 200) {
-            ServerLevel level = (ServerLevel) this.corarchelon.level();
-            level.setBlock(this.blockPos.above(),
-                    JustaCreature.CORARCHELON_EGG.get().defaultBlockState()
-                            .setValue(CorarchelonEgg.EGGS, this.corarchelon.random.nextInt(4) + 1),
-                    3);
-            level.playSound(null, this.blockPos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3F,
-                    0.9F + this.corarchelon.random.nextFloat() * 0.2F);
-            this.corarchelon.setHasEgg(false);
-            this.corarchelon.setLaying(false);
-            this.corarchelon.setInLoveTime(600);
+            this.corarchelon.setDiggingTicks(0);
+        } else {
+            this.corarchelon.setDiggingTicks(this.corarchelon.getDiggingTicks() + 1);
+            if (this.corarchelon.getDiggingTicks() > 200) {
+                ServerLevel level = (ServerLevel) this.corarchelon.level();
+                level.setBlock(this.blockPos.above(),
+                        JustaCreature.CORARCHELON_EGG.get().defaultBlockState()
+                                .setValue(CorarchelonEgg.EGGS, this.corarchelon.random.nextInt(4) + 1),
+                        3);
+                level.playSound(null, this.blockPos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3F,
+                        0.9F + this.corarchelon.random.nextFloat() * 0.2F);
+                this.corarchelon.setHasEgg(false);
+                this.corarchelon.setLaying(false);
+                this.corarchelon.setInLoveTime(600);
+            }
         }
     }
 

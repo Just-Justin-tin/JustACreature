@@ -31,9 +31,13 @@ public class CorarchelonEgg extends Block {
 
     private static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
 
+    public static final IntegerProperty EGGS = BlockStateProperties.EGGS;
+
     public CorarchelonEgg(BlockBehaviour.Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HATCH, Integer.valueOf(0)));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(HATCH, Integer.valueOf(0))
+                .setValue(EGGS, Integer.valueOf(1)));
     }
 
     public static final MapCodec<CorarchelonEgg> CODEC = simpleCodec(CorarchelonEgg::new);

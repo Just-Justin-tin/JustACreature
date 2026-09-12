@@ -11,6 +11,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -26,11 +32,11 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SeaPickleBlock;
-import net.minecraft.world.entity.animal.Turtle;
+import net.minecraft.world.entity.animal.Animal;
 
-public class Corarchelon extends Turtle {
+public class Corarchelon extends Animal {
 
-    public Corarchelon(EntityType<? extends Turtle> entityType, Level level) {
+    public Corarchelon(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -80,7 +86,7 @@ public class Corarchelon extends Turtle {
         super.defineSynchedData(builder);
         builder.define(IS_EATING, false);
         builder.define(IS_SHAKING, false);
-        builder.define(IS_LAYING, false);
+        builder.define(DIGGING_TICKS, 0);
         builder.define(IS_HAS_EGG, false);
     }
 
@@ -134,12 +140,6 @@ public class Corarchelon extends Turtle {
         return JustaCreatureMobs.CORARCHELON.get().create(serverLevel);
     }
 
-    @Override
-    protected void registerGoals() {
-
-        super.registerGoals();
-    }
-
     int eatTimer = 40;
 
     @Override
@@ -180,4 +180,15 @@ public class Corarchelon extends Turtle {
         return super.canDrownInFluidType(type);
     }
 
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new CorarchelonLayEggGoal(this, 1.0D)); // your goal, replaces TurtleLayEggGoal
+        this.goalSelector.addGoal(1, new PanicGoal(this, 1.2D));
+        this.goalSelector.addGoal(1, new BreedGoal(this, 1.0D));
+        this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this));
+        super.registerGoals();
+    }
 }
