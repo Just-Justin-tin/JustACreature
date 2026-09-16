@@ -3,6 +3,7 @@ package com.example.justacreature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.LevelReader;
@@ -45,10 +46,10 @@ public class CorarchelonLayEggGoal extends MoveToBlockGoal {
                 ServerLevel level = (ServerLevel) this.corarchelon.level();
                 level.setBlock(this.blockPos.above(),
                         JustaCreature.CORARCHELON_EGG.get().defaultBlockState()
-                                .setValue(CorarchelonEgg.EGGS, this.corarchelon.random.nextInt(4) + 1),
+                                .setValue(CorarchelonEgg.EGGS, this.corarchelon.getRandom().nextInt(4) + 1),
                         3);
                 level.playSound(null, this.blockPos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3F,
-                        0.9F + this.corarchelon.random.nextFloat() * 0.2F);
+                        0.9F + this.corarchelon.getRandom().nextFloat() * 0.2F);
                 this.corarchelon.setHasEgg(false);
                 this.corarchelon.setLaying(false);
                 this.corarchelon.setInLoveTime(600);
