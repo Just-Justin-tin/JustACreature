@@ -50,7 +50,7 @@ public class CorarchelonEgg extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         // 3. Register the property
-        builder.add(HATCH, WATERLOGGED);
+        builder.add(HATCH, WATERLOGGED, EGGS);
     }
 
     // 4. Check if we are placing the egg into lava

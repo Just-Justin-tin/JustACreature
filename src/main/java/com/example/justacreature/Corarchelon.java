@@ -86,6 +86,7 @@ public class Corarchelon extends Animal {
         super.defineSynchedData(builder);
         builder.define(IS_EATING, false);
         builder.define(IS_SHAKING, false);
+        builder.define(IS_LAYING, false);
         builder.define(DIGGING_TICKS, 0);
         builder.define(IS_HAS_EGG, false);
     }
