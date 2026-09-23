@@ -4,8 +4,11 @@ import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.animal.Animal;
 
 public class CorarchelonBreedGoal extends BreedGoal {
+    private final double speedModifier;
+    
     public CorarchelonBreedGoal(Animal animal, double speedModifier) {
         super(animal, speedModifier);
+        this.speedModifier = speedModifier;
     }
 
     @Override
