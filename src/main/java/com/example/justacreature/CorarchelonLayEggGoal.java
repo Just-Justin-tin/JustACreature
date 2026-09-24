@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import com.example.justacreature.Corarchelon;
 import com.example.justacreature.JustaCreature;
-import com.ibm.icu.text.RelativeDateTimeFormatter.Direction;
+import net.minecraft.core.Direction;
 
 public class CorarchelonLayEggGoal extends MoveToBlockGoal {
     private final Corarchelon corarchelon;
