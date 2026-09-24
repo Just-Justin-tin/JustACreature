@@ -145,6 +145,18 @@ public class Corarchelon extends Animal {
         return JustaCreatureMobs.CORARCHELON.get().create(serverLevel);
     }
 
+    @Override
+    public void spawnChildFromBreeding(ServerLevel level, Animal mate) {
+        this.setHasEgg(true);
+        this.resetLove();
+        mate.resetLove();
+        level.broadcastEntityEvent(this, (byte) 18); // heart particles, same event vanilla breeding uses
+        if (level.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DOMOBLOOT)) {
+            level.addFreshEntity(new net.minecraft.world.entity.ExperienceOrb(
+                    level, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
+        }
+    }
+
     int eatTimer = 40;
 
     @Override
