@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import com.example.justacreature.Corarchelon;
 import com.example.justacreature.JustaCreature;
+import com.ibm.icu.text.RelativeDateTimeFormatter.Direction;
 
 public class CorarchelonLayEggGoal extends MoveToBlockGoal {
     private final Corarchelon corarchelon;
@@ -59,13 +60,14 @@ public class CorarchelonLayEggGoal extends MoveToBlockGoal {
 
     @Override
     protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos.below());
-        return !level.isEmptyBlock(pos) ? false
-                : (state.is(BlockTags.CORAL_BLOCKS) &&
-                        (level.isWaterAt(pos.above())
-                                || level.isWaterAt(pos.north())
-                                || level.isWaterAt(pos.south())
-                                || level.isWaterAt(pos.east())
-                                || level.isWaterAt(pos.west())));
+        if (!level.isEmptyBlock(pos) || !level.isWaterAt(pos)) {
+            return false;
+        }
+        for (Direction dir : Direction.values()) {
+            if (level.getBlockState(pos.relative(dir)).is(BlockTags.CORAL_BLOCKS)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

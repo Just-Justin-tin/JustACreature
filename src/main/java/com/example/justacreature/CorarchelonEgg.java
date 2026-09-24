@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,9 +21,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 
 public class CorarchelonEgg extends Block {
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
@@ -32,6 +35,8 @@ public class CorarchelonEgg extends Block {
     private static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
 
     public static final IntegerProperty EGGS = BlockStateProperties.EGGS;
+
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
 
     public CorarchelonEgg(BlockBehaviour.Properties properties) {
         super(properties);
@@ -50,7 +55,7 @@ public class CorarchelonEgg extends Block {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         // 3. Register the property
-        builder.add(HATCH, WATERLOGGED, EGGS);
+        builder.add(HATCH, WATERLOGGED, EGGS, FACING);
     }
 
     // 4. Check if we are placing the egg into lava
@@ -113,6 +118,12 @@ public class CorarchelonEgg extends Block {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        Direction facing = state.getValue(FACING);
+        return level.getBlockState(pos.relative(facing)).is(BlockTags.CORAL_BLOCKS);
     }
 
     private boolean canHatch(Level level) {
