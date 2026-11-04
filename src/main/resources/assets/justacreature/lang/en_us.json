@@ -1,6 +1,9 @@
 {
     "itemGroup.justacreature": "Just A Creature",
     "block.justacreature.bosambo_egg": "Bosambo Egg",
+    "block.justacreature.corarchelon_egg": "Corarchelon Egg",
+    "item.justacreature.corarchelon_egg": "Corarchelon Egg",
+    "entity.justacreature.corarchelon": "Corarchelon",
     "item.justacreature.crystalline_melon_slice": "Crystalline Melon Slice",
     "item.justacreature.shiny_seeds": "Shiny Seeds",
     "block.justacreature.deepslate_tungsten_ore": "Deepslate Tungsten Ore",

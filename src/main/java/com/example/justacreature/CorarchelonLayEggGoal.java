@@ -10,9 +10,9 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
+import net.minecraft.world.level.material.Fluids;
 import com.example.justacreature.Corarchelon;
 import com.example.justacreature.JustaCreature;
-import net.minecraft.core.Direction;
 
 public class CorarchelonLayEggGoal extends MoveToBlockGoal {
     private final Corarchelon corarchelon;
@@ -45,9 +45,12 @@ public class CorarchelonLayEggGoal extends MoveToBlockGoal {
             this.corarchelon.setDiggingTicks(this.corarchelon.getDiggingTicks() + 1);
             if (this.corarchelon.getDiggingTicks() > 200) {
                 ServerLevel level = (ServerLevel) this.corarchelon.level();
-                level.setBlock(this.blockPos.above(),
+                BlockPos eggPos = this.blockPos.above();
+                boolean isWater = level.getFluidState(eggPos).is(Fluids.WATER);
+                level.setBlock(eggPos,
                         JustaCreature.CORARCHELON_EGG.get().defaultBlockState()
-                                .setValue(CorarchelonEgg.EGGS, this.corarchelon.getRandom().nextInt(4) + 1),
+                                .setValue(CorarchelonEgg.EGGS, this.corarchelon.getRandom().nextInt(3) + 1)
+                                .setValue(CorarchelonEgg.WATERLOGGED, isWater),
                         3);
                 level.playSound(null, this.blockPos, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3F,
                         0.9F + this.corarchelon.getRandom().nextFloat() * 0.2F);
@@ -60,14 +63,10 @@ public class CorarchelonLayEggGoal extends MoveToBlockGoal {
 
     @Override
     protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-        if (!level.isEmptyBlock(pos) || !level.isWaterAt(pos)) {
+        if (!level.getBlockState(pos).is(BlockTags.CORAL_BLOCKS)) {
             return false;
         }
-        for (Direction dir : Direction.values()) {
-            if (level.getBlockState(pos.relative(dir)).is(BlockTags.CORAL_BLOCKS)) {
-                return true;
-            }
-        }
-        return false;
+        BlockPos abovePos = pos.above();
+        return level.getFluidState(abovePos).is(Fluids.WATER) && level.getBlockState(abovePos).canBeReplaced();
     }
 }

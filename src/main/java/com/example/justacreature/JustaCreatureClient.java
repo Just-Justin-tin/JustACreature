@@ -1,6 +1,7 @@
 package com.example.justacreature;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -14,7 +15,7 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 @Mod(value = JustaCreature.MODID, dist = Dist.CLIENT)
 // You can use EventBusSubscriber to automatically register all static methods
 // in the class annotated with @SubscribeEvent
-@EventBusSubscriber(modid = JustaCreature.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = JustaCreature.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class JustaCreatureClient {
     public JustaCreatureClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
@@ -27,6 +28,8 @@ public class JustaCreatureClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
-
+        event.enqueueWork(() -> {
+            ItemBlockRenderTypes.setRenderLayer(JustaCreature.CORARCHELON_EGG.get(), RenderType.cutout());
+        });
     }
 }

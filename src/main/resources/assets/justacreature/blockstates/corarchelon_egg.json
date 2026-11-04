@@ -1,0 +1,59 @@
+{
+    "variants": {
+        "eggs=1,hatch=0,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_1"
+        },
+        "eggs=1,hatch=0,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_1"
+        },
+        "eggs=1,hatch=1,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_1"
+        },
+        "eggs=1,hatch=1,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_1"
+        },
+        "eggs=1,hatch=2,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_1"
+        },
+        "eggs=1,hatch=2,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_1"
+        },
+        "eggs=2,hatch=0,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_2"
+        },
+        "eggs=2,hatch=0,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_2"
+        },
+        "eggs=2,hatch=1,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_2"
+        },
+        "eggs=2,hatch=1,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_2"
+        },
+        "eggs=2,hatch=2,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_2"
+        },
+        "eggs=2,hatch=2,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_2"
+        },
+        "eggs=3,hatch=0,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_3"
+        },
+        "eggs=3,hatch=0,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_3"
+        },
+        "eggs=3,hatch=1,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_3"
+        },
+        "eggs=3,hatch=1,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_3"
+        },
+        "eggs=3,hatch=2,waterlogged=false": {
+            "model": "justacreature:block/corarchelon_egg_3"
+        },
+        "eggs=3,hatch=2,waterlogged=true": {
+            "model": "justacreature:block/corarchelon_egg_3"
+        }
+    }
+}
+

@@ -2,50 +2,50 @@ package com.example.justacreature;
 
 import com.mojang.serialization.MapCodec;
 
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
 
-public class CorarchelonEgg extends Block {
+public class CorarchelonEgg extends Block implements SimpleWaterloggedBlock {
+    public static final MapCodec<CorarchelonEgg> CODEC = simpleCodec(CorarchelonEgg::new);
+
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
+    public static final IntegerProperty EGGS = IntegerProperty.create("eggs", 1, 3);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public static final BooleanProperty WATERLOGGED = BooleanProperty.create("waterlogged");
-
-    private static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 16.0D, 15.0D);
-
-    public static final IntegerProperty EGGS = BlockStateProperties.EGGS;
-
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    private static final VoxelShape ONE_EGG_SHAPE = Block.box(3.0D, 0.0D, 1.0D, 13.0D, 7.0D, 8.0D);
+    private static final VoxelShape MULTI_EGG_SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 10.0D, 15.0D);
 
     public CorarchelonEgg(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HATCH, Integer.valueOf(0))
-                .setValue(EGGS, Integer.valueOf(1)));
+                .setValue(EGGS, Integer.valueOf(1))
+                .setValue(WATERLOGGED, Boolean.valueOf(false)));
     }
-
-    public static final MapCodec<CorarchelonEgg> CODEC = simpleCodec(CorarchelonEgg::new);
 
     @Override
     protected MapCodec<CorarchelonEgg> codec() {
@@ -54,20 +54,29 @@ public class CorarchelonEgg extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        // 3. Register the property
-        builder.add(HATCH, WATERLOGGED, EGGS, FACING);
+        builder.add(HATCH, EGGS, WATERLOGGED);
     }
 
-    // 4. Check if we are placing the egg into lava
+    @Override
+    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+        return !context.isSecondaryUseActive() && context.getItemInHand().is(this.asItem()) && state.getValue(EGGS) < 3
+                ? true
+                : super.canBeReplaced(state, context);
+    }
+
+    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
-        boolean isWater = fluidstate.getType() == Fluids.WATER || fluidstate.getType() == Fluids.FLOWING_WATER;
+        BlockState currentState = context.getLevel().getBlockState(context.getClickedPos());
+        if (currentState.is(this)) {
+            return currentState.setValue(EGGS, Math.min(3, currentState.getValue(EGGS) + 1));
+        }
 
+        FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
+        boolean isWater = fluidstate.getType() == Fluids.WATER;
         return this.defaultBlockState().setValue(WATERLOGGED, Boolean.valueOf(isWater));
     }
 
-    // 5. Tell the game to render/act like lava if the block is lavalogged
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
@@ -75,17 +84,24 @@ public class CorarchelonEgg extends Block {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return state.getValue(EGGS) == 1 ? ONE_EGG_SHAPE : MULTI_EGG_SHAPE;
     }
 
-    // 6. Ensure lava flows properly out of the block if it updates
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
             BlockPos currentPos, BlockPos neighborPos) {
+        if (!state.canSurvive(level, currentPos)) {
+            return state.getValue(WATERLOGGED) ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
+        }
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
+    }
+
+    @Override
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return level.getBlockState(pos.below()).is(BlockTags.CORAL_BLOCKS);
     }
 
     @Override
@@ -107,23 +123,20 @@ public class CorarchelonEgg extends Block {
                             0.9F + random.nextFloat() * 0.2F);
                     level.destroyBlock(pos, false);
 
-                    Corarchelon corarchelon = JustaCreatureMobs.CORARCHELON.get().create(level);
-                    if (corarchelon != null) {
-                        corarchelon.setAge(-24000); // Make it a baby
-                        corarchelon.moveTo((double) pos.getX() + 0.5D, (double) pos.getY(), (double) pos.getZ() + 0.5D,
-                                0.0F,
-                                0.0F);
-                        level.addFreshEntity(corarchelon);
+                    int eggCount = state.getValue(EGGS);
+                    for (int j = 0; j < eggCount; ++j) {
+                        level.levelEvent(2001, pos, Block.getId(state));
+                        Corarchelon corarchelon = JustaCreatureMobs.CORARCHELON.get().create(level);
+                        if (corarchelon != null) {
+                            corarchelon.setAge(-24000); // Make it a baby
+                            corarchelon.moveTo((double) pos.getX() + 0.3D + (double) j * 0.2D, (double) pos.getY(),
+                                    (double) pos.getZ() + 0.3D, 0.0F, 0.0F);
+                            level.addFreshEntity(corarchelon);
+                        }
                     }
                 }
             }
         }
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        Direction facing = state.getValue(FACING);
-        return level.getBlockState(pos.relative(facing)).is(BlockTags.CORAL_BLOCKS);
     }
 
     private boolean canHatch(Level level) {

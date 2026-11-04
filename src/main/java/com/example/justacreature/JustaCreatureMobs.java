@@ -197,7 +197,7 @@ public class JustaCreatureMobs {
 
                 event.put(BOUNCY_BALL.get(), Monster.createMonsterAttributes()
                                 .add(Attributes.MOVEMENT_SPEED, 3.0F)
-                                .add(Attributes.JUMP_STRENGTH, 4.5F)
+                                .add(Attributes.JUMP_STRENGTH, 1.5F)
                                 .build());
 
                 event.put(CORARCHELON.get(), Monster.createMonsterAttributes()
